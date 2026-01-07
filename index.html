@@ -3,94 +3,123 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistem Informasi Jembatan — PUPR Barito Timur</title>
+<title>Sistem Informasi Jembatan – PUPR Barito Timur</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
 <style>
-/* ================= DASAR ================= */
+/* ===================== GLOBAL ===================== */
 body{
   margin:0;
+  font-family:Segoe UI, sans-serif;
   background:#020216;
   color:#e0f7ff;
-  font-family:Segoe UI, sans-serif;
 }
+
+/* ===================== HEADER ===================== */
 header{
-  padding:18px;
-  text-align:center;
-  background:#0b3c5d;
+  background:#000814;
   border-bottom:3px solid #f4b400;
 }
-header h2{
+.header-inner{
+  max-width:1200px;
+  margin:auto;
+  padding:14px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+header img{
+  height:56px;
+}
+header .title{
+  text-align:center;
+}
+header h1{
   margin:0;
   font-size:1.5rem;
-  letter-spacing:.5px;
 }
-.container{
-  padding:12px;
-  max-width:1100px;
-  margin:auto;
+header small{
+  color:#ffe08a;
 }
 
-/* ================= FILTER ================= */
-select, input, button{
+/* ===================== FILTER ===================== */
+.filter{
+  max-width:1200px;
+  margin:12px auto;
+  padding:0 15px;
+}
+select{
   width:100%;
   padding:10px;
-  margin-top:6px;
   border-radius:8px;
   border:none;
-  background:#071a33;
-  color:#e0f7ff;
-}
-button{
-  background:#f4b400;
-  color:#001;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-/* ================= MAP ================= */
-#map{
-  height:420px;
-  margin-top:12px;
-  border-radius:12px;
-}
-
-/* ================= PANEL FORM ================= */
-.panel{
-  position:fixed;
-  top:90px;
-  right:20px;
-  width:340px;
-  max-height:80vh;
-  overflow:auto;
   background:#071427;
-  padding:12px;
+  color:#e0f7ff;
+  font-size:15px;
+}
+
+/* ===================== MAP ===================== */
+#map{
+  height:65vh;
+  margin:0 15px;
+  border-radius:12px;
+  box-shadow:0 0 20px rgba(0,0,0,.6);
+}
+
+/* ===================== PANEL DETAIL ===================== */
+#panel{
+  position:absolute;
+  top:110px;
+  right:25px;
+  width:340px;
+  background:#071427;
+  padding:14px;
   border-radius:14px;
-  box-shadow:0 0 25px rgba(0,0,0,.7);
+  box-shadow:0 0 25px rgba(0,0,0,.8);
+  display:none;
   z-index:999;
 }
-.hidden{display:none}
-
-.panel img{
+#panel img{
   width:100%;
   border-radius:10px;
   border:2px solid #f4b400;
-  margin-bottom:6px;
+  margin-bottom:8px;
+}
+label{
+  font-size:12px;
+  color:#9ecbff;
+}
+input,select,button{
+  width:100%;
+  margin-top:6px;
+  padding:9px;
+  border-radius:8px;
+  border:none;
+}
+button{
+  background:#f4b400;
+  font-weight:bold;
+  cursor:pointer;
+}
+.actions{
+  display:flex;
+  gap:6px;
 }
 
-/* ================= FLOAT BUTTON ================= */
-.fab{
+/* ===================== ADD BUTTON ===================== */
+#btnAdd{
   position:fixed;
-  bottom:22px;
-  right:22px;
+  bottom:25px;
+  right:25px;
   width:60px;
   height:60px;
   border-radius:50%;
-  font-size:26px;
   border:none;
   background:#f4b400;
-  color:#000;
+  font-size:28px;
+  font-weight:bold;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -98,11 +127,17 @@ button{
 <body>
 
 <header>
-  <h2>🛣️ Sistem Informasi Jembatan — PUPR Barito Timur</h2>
+  <div class="header-inner">
+    <img src="bartim.png">
+    <div class="title">
+      <h1>Sistem Informasi Jembatan</h1>
+      <small>Dinas PUPR Kabupaten Barito Timur</small>
+    </div>
+    <img src="logopupr.png">
+  </div>
 </header>
 
-<div class="container">
-
+<div class="filter">
   <select id="filterKec">
     <option value="">— Pilih Kecamatan —</option>
     <option>Dusun Timur</option>
@@ -116,58 +151,40 @@ button{
     <option>Karusen Janang</option>
     <option>Benua Lima</option>
   </select>
-
-  <div id="map"></div>
-
 </div>
 
-<!-- PANEL DETAIL -->
-<div class="panel hidden" id="panel">
+<div id="map"></div>
 
-  <input type="hidden" id="rowIndex">
-
-  <img id="fotoPreview" src="https://via.placeholder.com/300x180">
-
-  <input id="no_jembatan" placeholder="Nomor Jembatan">
-  <input id="nama_jembatan" placeholder="Nama Jembatan">
-  <input id="jenis_konstruksi" placeholder="Jenis Konstruksi">
-  <input id="ruas_jalan" placeholder="Ruas Jalan">
-  <input id="desa_kelurahan" placeholder="Desa / Kelurahan">
-
+<!-- PANEL DETAIL / EDIT -->
+<div id="panel">
+  <img id="foto">
+  <label>No Jembatan</label><input id="no_jembatan">
+  <label>Nama Jembatan</label><input id="nama_jembatan">
+  <label>Jenis Konstruksi</label><input id="jenis_konstruksi">
+  <label>Ruas Jalan</label><input id="ruas_jalan">
+  <label>Kecamatan</label>
   <select id="kecamatan">
-    <option>Dusun Timur</option>
-    <option>Awang</option>
-    <option>Dusun Tengah</option>
-    <option>Patangkep Tutui</option>
-    <option>Pematang Karau</option>
-    <option>Paju Epat</option>
-    <option>Raren Batuah</option>
-    <option>Paku</option>
-    <option>Karusen Janang</option>
-    <option>Benua Lima</option>
+    <option>Dusun Timur</option><option>Awang</option>
+    <option>Dusun Tengah</option><option>Patangkep Tutui</option>
+    <option>Pematang Karau</option><option>Paju Epat</option>
+    <option>Raren Batuah</option><option>Paku</option>
+    <option>Karusen Janang</option><option>Benua Lima</option>
   </select>
-
-  <input id="lat" placeholder="Latitude">
-  <input id="lng" placeholder="Longitude">
-  <button onclick="ambilGPS()">📍 Ambil Lokasi</button>
-
-  <input id="panjang" placeholder="Panjang (m)">
-  <input id="lebar" placeholder="Lebar (m)">
-  <input id="jumlah_bentang" placeholder="Jumlah Bentang">
-
-  <input id="tipe_bangunan_atas" placeholder="Tipe Bangunan Atas">
-  <input id="tipe_bangunan_bawah" placeholder="Tipe Bangunan Bawah">
-  <input id="tipe_pondasi" placeholder="Tipe Pondasi">
-  <input id="tipe_lantai" placeholder="Tipe Lantai">
-
-  <input id="kondisi" placeholder="Kondisi">
-
-  <input type="file" id="fotoFile" accept="image/*" capture>
-
-  <button onclick="simpan()">💾 Simpan</button>
+  <label>Desa / Kelurahan</label><input id="desa">
+  <label>Latitude</label><input id="lat">
+  <label>Longitude</label><input id="lng">
+  <label>Panjang (m)</label><input id="panjang">
+  <label>Lebar (m)</label><input id="lebar">
+  <label>Jumlah Bentang</label><input id="jumlah_bentang">
+  <label>Kondisi</label><input id="kondisi">
+  <input type="file" id="fotoFile" accept="image/*">
+  <div class="actions">
+    <button onclick="ambilGPS()">📍 GPS</button>
+    <button onclick="simpan()">💾 Simpan</button>
+  </div>
 </div>
 
-<button class="fab" onclick="tambahBaru()">＋</button>
+<button id="btnAdd" onclick="tambah()">＋</button>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
@@ -175,7 +192,7 @@ button{
 const API_URL = "PASTE_URL_GAS_EXEC_DI_SINI";
 
 /* ================= MAP ================= */
-const map = L.map("map").setView([-2.13,115.10],10);
+const map = L.map("map").setView([-2.1,115.2],9);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 const layer = L.layerGroup().addTo(map);
 
@@ -185,19 +202,20 @@ const icon = L.icon({
   iconAnchor:[18,36]
 });
 
-/* ================= LOAD DATA ================= */
+/* ================= STATE ================= */
+let currentRow = null;
+let fotoLama = "";
+
+/* ================= LOAD ================= */
 filterKec.onchange = loadData;
 
 async function loadData(){
-  const kec = filterKec.value;
-  if(!kec) return;          // ⬅️ INI KUNCI RINGAN
-
   layer.clearLayers();
-  panel.classList.add("hidden");
+  panel.style.display="none";
+  if(!filterKec.value) return;
 
-  const r = await fetch(API_URL + "?kecamatan=" + encodeURIComponent(kec));
-  const j = await r.json();
-  if(j.status!=="success") return alert(j.message);
+  const res = await fetch(API_URL+"?kecamatan="+encodeURIComponent(filterKec.value));
+  const j = await res.json();
 
   j.data.forEach(d=>{
     if(isNaN(d.lat)||isNaN(d.lng)) return;
@@ -208,35 +226,30 @@ async function loadData(){
 
 /* ================= EDIT ================= */
 function edit(d){
-  panel.classList.remove("hidden");
-
-  rowIndex.value = d.rowIndex || "";
-  fotoPreview.src = d.foto || "https://via.placeholder.com/300x180";
-
-  no_jembatan.value = d.no_jembatan || "";
-  nama_jembatan.value = d.nama_jembatan || "";
-  jenis_konstruksi.value = d.jenis_konstruksi || "";
-  ruas_jalan.value = d.ruas_jalan || "";
-  desa_kelurahan.value = d.desa_kelurahan || "";
-  kecamatan.value = d.kecamatan || "";
-  lat.value = d.lat || "";
-  lng.value = d.lng || "";
-  panjang.value = d.panjang || "";
-  lebar.value = d.lebar || "";
-  jumlah_bentang.value = d.jumlah_bentang || "";
-  tipe_bangunan_atas.value = d.tipe_bangunan_atas || "";
-  tipe_bangunan_bawah.value = d.tipe_bangunan_bawah || "";
-  tipe_pondasi.value = d.tipe_pondasi || "";
-  tipe_lantai.value = d.tipe_lantai || "";
-  kondisi.value = d.kondisi || "";
+  panel.style.display="block";
+  currentRow = d.rowIndex;
+  fotoLama = d.foto || "";
+  foto.src = d.foto || "https://via.placeholder.com/300x180";
+  no_jembatan.value=d.no_jembatan||"";
+  nama_jembatan.value=d.nama_jembatan||"";
+  jenis_konstruksi.value=d.jenis_konstruksi||"";
+  ruas_jalan.value=d.ruas_jalan||"";
+  kecamatan.value=d.kecamatan||"";
+  desa.value=d.desa_kelurahan||"";
+  lat.value=d.lat||"";
+  lng.value=d.lng||"";
+  panjang.value=d.panjang||"";
+  lebar.value=d.lebar||"";
+  jumlah_bentang.value=d.jumlah_bentang||"";
+  kondisi.value=d.kondisi||"";
 }
 
-/* ================= TAMBAH ================= */
-function tambahBaru(){
-  panel.classList.remove("hidden");
+/* ================= ADD ================= */
+function tambah(){
+  panel.style.display="block";
+  currentRow=null; fotoLama="";
   document.querySelectorAll("#panel input").forEach(i=>i.value="");
-  rowIndex.value="";
-  fotoPreview.src="https://via.placeholder.com/300x180";
+  foto.src="https://via.placeholder.com/300x180";
 }
 
 /* ================= GPS ================= */
@@ -247,12 +260,12 @@ function ambilGPS(){
   });
 }
 
-/* ================= SIMPAN ================= */
+/* ================= SAVE ================= */
 async function simpan(){
-  let fotoBase64="";
+  let base64="";
   if(fotoFile.files[0]){
-    fotoBase64=await new Promise(r=>{
-      const fr=new FileReader();
+    const fr=new FileReader();
+    base64=await new Promise(r=>{
       fr.onload=()=>r(fr.result);
       fr.readAsDataURL(fotoFile.files[0]);
     });
@@ -261,29 +274,25 @@ async function simpan(){
   await fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({
-      rowIndex:rowIndex.value,
+      rowIndex:currentRow,
       no_jembatan:no_jembatan.value,
       nama_jembatan:nama_jembatan.value,
       jenis_konstruksi:jenis_konstruksi.value,
       ruas_jalan:ruas_jalan.value,
       kecamatan:kecamatan.value,
-      desa_kelurahan:desa_kelurahan.value,
+      desa_kelurahan:desa.value,
       lat:lat.value,
       lng:lng.value,
       panjang:panjang.value,
       lebar:lebar.value,
       jumlah_bentang:jumlah_bentang.value,
-      tipe_bangunan_atas:tipe_bangunan_atas.value,
-      tipe_bangunan_bawah:tipe_bangunan_bawah.value,
-      tipe_pondasi:tipe_pondasi.value,
-      tipe_lantai:tipe_lantai.value,
       kondisi:kondisi.value,
-      fotoBase64
+      fotoBase64:base64,
+      foto_lama:fotoLama
     })
   });
-
   alert("✔ Data tersimpan");
-  panel.classList.add("hidden");
+  panel.style.display="none";
   loadData();
 }
 </script>
