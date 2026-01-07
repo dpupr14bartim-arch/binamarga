@@ -9,121 +9,105 @@
 
 <style>
 body{margin:0;background:#0a1a2a;color:#eaf4ff;font-family:Segoe UI}
-header{padding:18px;text-align:center;background:#0b3c5d;border-bottom:3px solid #f4b400}
-header h1{margin:0;font-size:1.6rem}
-header small{color:#ffe08a}
-/* ===== HEADER PUPR ===== */
-/* ===== HEADER PUPR FINAL ===== */
-.header{
+
+/* ===== HEADER ===== */
+.header-pupr{
   background: linear-gradient(180deg,#0b3c5d,#082c45);
-  border-bottom: 3px solid #f4b400;
-  box-shadow: 0 4px 25px rgba(0,0,0,.6);
+  box-shadow:0 6px 30px rgba(0,0,0,.6);
 }
-
 .header-inner{
-  max-width:1200px;
-  margin:auto;
-  padding:14px 24px;
-  display:grid;
-  grid-template-columns: 140px 1fr 140px;
-  align-items:center;
+  max-width:1200px;margin:auto;
+  padding:18px 24px 10px;
+  display:flex;align-items:center;gap:15px
 }
+.logo{height:64px;filter:drop-shadow(0 0 10px rgba(244,180,0,.35))}
+.judul{text-align:center;flex:1}
+.judul-utama{font-size:1.75rem;font-weight:700}
+.judul-sub{font-size:.95rem;color:#ffe08a}
+.wave{width:100%;height:60px}
 
-/* LOGO */
-.logo{
-  height:56px;
-  max-width:100%;
-  object-fit:contain;
-}
-
-.logo.kiri{
-  justify-self:start;
-}
-
-.logo.kanan{
-  justify-self:end;
-}
-
-/* JUDUL */
-.judul{
-  text-align:center;
-}
-
-.judul-utama{
-  font-size:1.7rem;
-  font-weight:700;
-  color:#ffffff;
-  letter-spacing:.6px;
-}
-
-.judul-sub{
-  font-size:.95rem;
-  color:#ffe08a;
-  margin-top:4px;
-}
-
-
+/* ===== MAP ===== */
 #map{height:65vh}
 
+/* ===== PANEL ===== */
 .panel{
- position:absolute;top:90px;right:20px;width:340px;
+ position:absolute;top:100px;right:20px;width:360px;
  background:#0e253a;border-radius:14px;padding:14px;
- box-shadow:0 0 25px rgba(0,0,0,.7);z-index:999
+ box-shadow:0 0 25px rgba(0,0,0,.7);z-index:999;
+ max-height:80vh;overflow:auto
+}
+
+.panel h3{
+ margin:4px 0 10px;color:#ffe08a
+}
+
+label{
+ font-size:12px;color:#9ecbff;
+ margin-top:8px;display:block
 }
 
 input,select,button{
- width:100%;margin-top:6px;padding:10px;
+ width:100%;margin-top:4px;padding:9px;
  border-radius:8px;border:none
 }
-button{background:#f4b400;font-weight:bold}
+
+button{
+ background:#f4b400;font-weight:bold;cursor:pointer
+}
 
 .hidden{display:none}
 img{width:100%;border-radius:10px;border:2px solid #f4b400}
+hr{border:0;border-top:1px solid #234;margin:10px 0}
 </style>
 </head>
 
 <body>
 
-<header class="header">
+<header class="header-pupr">
   <div class="header-inner">
-
-    <img src="bartim.png" class="logo kiri" alt="Logo Barito Timur">
-
+    <img src="bartim.png" class="logo">
     <div class="judul">
       <div class="judul-utama">Sistem Informasi Jembatan</div>
       <div class="judul-sub">Dinas PUPR Kabupaten Barito Timur</div>
     </div>
-
-    <img src="logopupr.png" class="logo kanan" alt="Logo PUPR">
-
+    <img src="logopupr.png" class="logo">
   </div>
+  <svg class="wave" viewBox="0 0 1440 90" preserveAspectRatio="none">
+    <path d="M0,40 C120,70 240,10 360,20 480,30 600,70 720,55 840,40 960,5 1080,15 1200,25 1320,45 1440,30 L1440,0 L0,0 Z"
+          fill="#0a1a2a"></path>
+  </svg>
 </header>
-
-
 
 <select id="filterKec" style="margin:10px">
 <option value="ALL">SEMUA KECAMATAN</option>
-<option>Dusun Timur</option>
-<option>Awang</option>
-<option>Dusun Tengah</option>
-<option>Patangkep Tutui</option>
-<option>Pematang Karau</option>
-<option>Paju Epat</option>
-<option>Raren Batuah</option>
-<option>Paku</option>
-<option>Karusen Janang</option>
-<option>Benua Lima</option>
+<option>Dusun Timur</option><option>Awang</option>
+<option>Dusun Tengah</option><option>Patangkep Tutui</option>
+<option>Pematang Karau</option><option>Paju Epat</option>
+<option>Raren Batuah</option><option>Paku</option>
+<option>Karusen Janang</option><option>Benua Lima</option>
 </select>
 
 <div id="map"></div>
 
-<!-- PANEL VIEW / EDIT -->
+<!-- ===== PANEL FORM ===== -->
 <div class="panel hidden" id="panel">
+<h3>📋 Data Jembatan</h3>
+
 <img id="foto">
-<input id="no_jembatan" placeholder="No Jembatan">
-<input id="nama_jembatan" placeholder="Nama Jembatan">
-<input id="ruas_jalan" placeholder="Ruas Jalan">
-<input id="desa" placeholder="Desa / Kelurahan">
+
+<label>Nomor Jembatan</label>
+<input id="no_jembatan">
+
+<label>Nama Jembatan</label>
+<input id="nama_jembatan">
+
+<label>Ruas Jalan</label>
+<input id="ruas_jalan">
+
+<label>Desa / Kelurahan</label>
+<input id="desa">
+
+<label>Kecamatan</label>
 <select id="kecamatan">
 <option>Dusun Timur</option><option>Awang</option>
 <option>Dusun Tengah</option><option>Patangkep Tutui</option>
@@ -131,11 +115,49 @@ img{width:100%;border-radius:10px;border:2px solid #f4b400}
 <option>Raren Batuah</option><option>Paku</option>
 <option>Karusen Janang</option><option>Benua Lima</option>
 </select>
-<input id="lat" placeholder="Latitude">
-<input id="lng" placeholder="Longitude">
-<select id="kondisi"><option>Baik</option><option>Rusak</option></select>
-<input type="file" id="fotoFile" accept="image/*" capture>
+
+<hr>
+
+<label>Latitude</label>
+<input id="lat">
+
+<label>Longitude</label>
+<input id="lng">
+
 <button onclick="ambilGPS()">📍 Ambil Lokasi</button>
+
+<hr>
+
+<label>Panjang (meter)</label>
+<input id="panjang" type="number" step="0.1">
+
+<label>Lebar (meter)</label>
+<input id="lebar" type="number" step="0.1">
+
+<label>Jumlah Bentang</label>
+<input id="bentang" type="number">
+
+<hr>
+
+<label>Jenis Konstruksi</label>
+<select id="jenis">
+<option>Beton</option><option>Kayu</option>
+<option>Baja</option><option>Gantung</option>
+</select>
+
+<label>Kondisi</label>
+<select id="kondisi">
+<option>Baik</option>
+<option>Sedang</option>
+<option>Rusak</option>
+<option>Rusak Berat</option>
+</select>
+
+<hr>
+
+<label>Foto Jembatan</label>
+<input type="file" id="fotoFile" accept="image/*" capture>
+
 <button onclick="simpan()">💾 Simpan</button>
 </div>
 
@@ -177,14 +199,18 @@ function edit(d){
  currentRow=d.rowIndex;
  fotoLama=d.foto||"";
  foto.src=d.foto||"https://via.placeholder.com/300x180";
- no_jembatan.value=d.no_jembatan;
- nama_jembatan.value=d.nama_jembatan;
- ruas_jalan.value=d.ruas_jalan;
- desa.value=d.desa_kelurahan;
- kecamatan.value=d.kecamatan;
- lat.value=d.lat;
- lng.value=d.lng;
- kondisi.value=d.kondisi;
+ no_jembatan.value=d.no_jembatan||"";
+ nama_jembatan.value=d.nama_jembatan||"";
+ ruas_jalan.value=d.ruas_jalan||"";
+ desa.value=d.desa_kelurahan||"";
+ kecamatan.value=d.kecamatan||"";
+ lat.value=d.lat||"";
+ lng.value=d.lng||"";
+ panjang.value=d.panjang||"";
+ lebar.value=d.lebar||"";
+ bentang.value=d.jumlah_bentang||"";
+ jenis.value=d.jenis_konstruksi||"";
+ kondisi.value=d.kondisi||"";
 }
 
 function tambahBaru(){
@@ -226,6 +252,10 @@ async function simpan(){
    kecamatan:kecamatan.value,
    desa_kelurahan:desa.value,
    lat:lat.value,lng:lng.value,
+   panjang:panjang.value,
+   lebar:lebar.value,
+   jumlah_bentang:bentang.value,
+   jenis_konstruksi:jenis.value,
    kondisi:kondisi.value,
    fotoBase64:base64,
    foto_lama:fotoLama
