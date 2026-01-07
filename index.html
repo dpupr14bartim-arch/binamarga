@@ -3,244 +3,176 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistem Informasi Jembatan — PUPR Kabupaten Barito Timur</title>
+<title>Sistem Informasi Jembatan — PUPR Barito Timur</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
 <style>
-/* =====================================================
-   === PUPR BINA MARGA THEME — PROFESIONAL ===
-===================================================== */
+body{margin:0;background:#0a1a2a;color:#eaf4ff;font-family:Segoe UI}
+header{padding:18px;text-align:center;background:#0b3c5d;border-bottom:3px solid #f4b400}
+header h1{margin:0;font-size:1.6rem}
+header small{color:#ffe08a}
 
-body{
-  margin:0;
-  background:linear-gradient(180deg,#0a1a2a,#08131f);
-  color:#eaf4ff;
-  font-family:"Segoe UI",sans-serif;
-}
+#map{height:65vh}
 
-/* HEADER */
-header{
-  padding:18px;
-  text-align:center;
-  background:linear-gradient(180deg,#0b3c5d,#082c45);
-  border-bottom:3px solid #f4b400;
-  box-shadow:0 3px 25px rgba(0,0,0,.6);
-}
-header h1{
-  margin:0;
-  font-size:1.6rem;
-  letter-spacing:.5px;
-}
-header small{
-  color:#ffe08a;
-}
-
-/* CONTAINER */
-.container{
-  max-width:1100px;
-  margin:auto;
-  padding:15px;
-}
-
-/* CONTROL PANEL */
 .panel{
-  background:#0e253a;
-  padding:14px;
-  border-radius:12px;
-  border-left:6px solid #f4b400;
-  box-shadow:0 0 20px rgba(0,0,0,.5);
-  margin-bottom:15px;
+ position:absolute;top:90px;right:20px;width:340px;
+ background:#0e253a;border-radius:14px;padding:14px;
+ box-shadow:0 0 25px rgba(0,0,0,.7);z-index:999
 }
 
-/* SELECT */
-select{
-  width:100%;
-  padding:12px;
-  border-radius:8px;
-  border:none;
-  font-size:15px;
-  background:#102a40;
-  color:#fff;
+input,select,button{
+ width:100%;margin-top:6px;padding:10px;
+ border-radius:8px;border:none
 }
+button{background:#f4b400;font-weight:bold}
 
-/* MAP */
-#map{
-  height:520px;
-  border-radius:14px;
-  box-shadow:0 0 25px rgba(0,0,0,.7);
-}
-
-/* INFO PANEL */
-#info{
-  position:absolute;
-  top:100px;
-  right:25px;
-  width:320px;
-  background:#0e253a;
-  border-radius:14px;
-  padding:12px;
-  box-shadow:0 0 25px rgba(0,0,0,.7);
-  display:none;
-  z-index:999;
-  animation:fadeSlide .35s ease-out;
-}
-@keyframes fadeSlide{
-  from{transform:translateX(20px);opacity:0}
-  to{transform:translateX(0);opacity:1}
-}
-
-#info img{
-  width:100%;
-  border-radius:10px;
-  margin-bottom:8px;
-  border:2px solid #f4b400;
-}
-
-.label{
-  font-size:12px;
-  color:#9ecbff;
-}
-.value{
-  font-weight:bold;
-  margin-bottom:4px;
-}
-
-/* FOOTER */
-footer{
-  margin-top:30px;
-  padding:15px;
-  text-align:center;
-  background:#0b3c5d;
-  color:#ffe08a;
-  font-weight:bold;
-}
+.hidden{display:none}
+img{width:100%;border-radius:10px;border:2px solid #f4b400}
 </style>
 </head>
 
 <body>
 
 <header>
-  <h1>Sistem Informasi Jembatan</h1>
-  <small>Dinas PUPR Kabupaten Barito Timur</small>
+<h1>Sistem Informasi Jembatan</h1>
+<small>Dinas PUPR Kabupaten Barito Timur</small>
 </header>
 
-<div class="container">
+<select id="filterKec" style="margin:10px">
+<option value="ALL">SEMUA KECAMATAN</option>
+<option>Dusun Timur</option>
+<option>Awang</option>
+<option>Dusun Tengah</option>
+<option>Patangkep Tutui</option>
+<option>Pematang Karau</option>
+<option>Paju Epat</option>
+<option>Raren Batuah</option>
+<option>Paku</option>
+<option>Karusen Janang</option>
+<option>Benua Lima</option>
+</select>
 
-  <div class="panel">
-    <label>Pilih Kecamatan</label>
-    <select id="kecamatanSelect">
-      <option value="ALL">— Semua Kecamatan —</option>
-    </select>
-  </div>
+<div id="map"></div>
 
-  <div id="map"></div>
-
+<!-- PANEL VIEW / EDIT -->
+<div class="panel hidden" id="panel">
+<img id="foto">
+<input id="no_jembatan" placeholder="No Jembatan">
+<input id="nama_jembatan" placeholder="Nama Jembatan">
+<input id="ruas_jalan" placeholder="Ruas Jalan">
+<input id="desa" placeholder="Desa / Kelurahan">
+<select id="kecamatan">
+<option>Dusun Timur</option><option>Awang</option>
+<option>Dusun Tengah</option><option>Patangkep Tutui</option>
+<option>Pematang Karau</option><option>Paju Epat</option>
+<option>Raren Batuah</option><option>Paku</option>
+<option>Karusen Janang</option><option>Benua Lima</option>
+</select>
+<input id="lat" placeholder="Latitude">
+<input id="lng" placeholder="Longitude">
+<select id="kondisi"><option>Baik</option><option>Rusak</option></select>
+<input type="file" id="fotoFile" accept="image/*" capture>
+<button onclick="ambilGPS()">📍 Ambil Lokasi</button>
+<button onclick="simpan()">💾 Simpan</button>
 </div>
 
-<!-- INFO PANEL -->
-<div id="info">
-  <img id="foto">
-  <div class="label">Nama Jembatan</div>
-  <div class="value" id="nama"></div>
-
-  <div class="label">Nomor Jembatan</div>
-  <div class="value" id="no"></div>
-
-  <div class="label">Kecamatan</div>
-  <div class="value" id="kec"></div>
-
-  <div class="label">Desa / Kelurahan</div>
-  <div class="value" id="desa"></div>
-
-  <div class="label">Ruas Jalan</div>
-  <div class="value" id="ruas"></div>
-
-  <div class="label">Kondisi</div>
-  <div class="value" id="kondisi"></div>
-
-  <div class="label">Koordinat</div>
-  <div class="value" id="koord"></div>
-</div>
-
-<footer>
-  © 2025 • Dinas Pekerjaan Umum dan Penataan Ruang  
-  Kabupaten Barito Timur
-</footer>
+<button onclick="tambahBaru()" style="
+ position:fixed;bottom:25px;right:25px;
+ background:#f4b400;border:none;border-radius:50%;
+ width:60px;height:60px;font-size:26px">＋</button>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-/* ================= KONFIG ================= */
-const API_URL = "PASTE_URL_GAS_EXEC_DI_SINI";
+const API="PASTE_URL_GAS_EXEC_DI_SINI";
 
-/* ================= MAP ================= */
-const map = L.map("map").setView([-2.1,115.2],9);
+const map=L.map("map").setView([-2.1,115.2],9);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
-const layer = L.layerGroup().addTo(map);
+const layer=L.layerGroup().addTo(map);
 
-const icon = L.icon({
-  iconUrl:"pupr.png",
-  iconSize:[38,38],
-  iconAnchor:[19,38]
-});
+const icon=L.icon({iconUrl:"pupr.png",iconSize:[38,38],iconAnchor:[19,38]});
 
-/* ================= DOM ================= */
-const kecSelect = document.getElementById("kecamatanSelect");
-const info = document.getElementById("info");
+let currentRow=null,fotoLama="";
 
-const foto = document.getElementById("foto");
-const nama = document.getElementById("nama");
-const no = document.getElementById("no");
-const kec = document.getElementById("kec");
-const desa = document.getElementById("desa");
-const ruas = document.getElementById("ruas");
-const kondisi = document.getElementById("kondisi");
-const koord = document.getElementById("koord");
+filterKec.onchange=load;
+load();
 
-/* ================= LOAD DATA ================= */
-kecSelect.onchange = loadData;
+async function load(){
+ layer.clearLayers();
+ panel.classList.add("hidden");
+ const r=await fetch(API+"?kecamatan="+filterKec.value);
+ const j=await r.json();
 
-async function loadData(){
-  const k = kecSelect.value;
-  layer.clearLayers();
-  info.style.display="none";
-
-  const res = await fetch(`${API_URL}?kecamatan=${encodeURIComponent(k)}`);
-  const json = await res.json();
-  if(json.status!=="success") return alert(json.message);
-
-  const kecSet = new Set();
-
-  json.data.forEach(d=>{
-    kecSet.add(d.kecamatan);
-    if(isNaN(d.lat)||isNaN(d.lng)) return;
-
-    const m = L.marker([d.lat,d.lng],{icon}).addTo(layer);
-    m.on("click",()=>{
-      foto.src = d.foto || "https://via.placeholder.com/300x180";
-      nama.innerText = d.nama_jembatan;
-      no.innerText = d.no_jembatan;
-      kec.innerText = d.kecamatan;
-      desa.innerText = d.desa_kelurahan;
-      ruas.innerText = d.ruas_jalan;
-      kondisi.innerText = d.kondisi;
-      koord.innerText = d.lat.toFixed(6)+", "+d.lng.toFixed(6);
-      info.style.display="block";
-    });
-  });
-
-  if(kecSelect.options.length===1){
-    [...kecSet].sort().forEach(v=>{
-      const o=document.createElement("option");
-      o.value=v;
-      o.textContent=v;
-      kecSelect.appendChild(o);
-    });
-  }
+ j.data.forEach(d=>{
+  if(isNaN(d.lat))return;
+  const m=L.marker([d.lat,d.lng],{icon}).addTo(layer);
+  m.on("click",()=>edit(d));
+ });
 }
 
-/* LOAD AWAL */
-loadData();
+function edit(d){
+ panel.classList.remove("hidden");
+ currentRow=d.rowIndex;
+ fotoLama=d.foto||"";
+ foto.src=d.foto||"https://via.placeholder.com/300x180";
+ no_jembatan.value=d.no_jembatan;
+ nama_jembatan.value=d.nama_jembatan;
+ ruas_jalan.value=d.ruas_jalan;
+ desa.value=d.desa_kelurahan;
+ kecamatan.value=d.kecamatan;
+ lat.value=d.lat;
+ lng.value=d.lng;
+ kondisi.value=d.kondisi;
+}
+
+function tambahBaru(){
+ currentRow=null;fotoLama="";
+ panel.classList.remove("hidden");
+ document.querySelectorAll("#panel input").forEach(i=>i.value="");
+ foto.src="https://via.placeholder.com/300x180";
+}
+
+map.on("click",e=>{
+ lat.value=e.latlng.lat.toFixed(6);
+ lng.value=e.latlng.lng.toFixed(6);
+});
+
+function ambilGPS(){
+ navigator.geolocation.getCurrentPosition(p=>{
+  lat.value=p.coords.latitude.toFixed(6);
+  lng.value=p.coords.longitude.toFixed(6);
+ });
+}
+
+async function simpan(){
+ let base64="";
+ const f=fotoFile.files[0];
+ if(f){
+  base64=await new Promise(r=>{
+   const fr=new FileReader();
+   fr.onload=()=>r(fr.result);
+   fr.readAsDataURL(f);
+  });
+ }
+ await fetch(API,{
+  method:"POST",
+  body:JSON.stringify({
+   rowIndex:currentRow,
+   no_jembatan:no_jembatan.value,
+   nama_jembatan:nama_jembatan.value,
+   ruas_jalan:ruas_jalan.value,
+   kecamatan:kecamatan.value,
+   desa_kelurahan:desa.value,
+   lat:lat.value,lng:lng.value,
+   kondisi:kondisi.value,
+   fotoBase64:base64,
+   foto_lama:fotoLama
+  })
+ });
+ alert("✔ Tersimpan");
+ panel.classList.add("hidden");
+ load();
+}
 </script>
 
 </body>
