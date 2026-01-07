@@ -14,6 +14,8 @@ html,body{
   font-family:Segoe UI, Arial, sans-serif;
   background:#f2f4f7;
 }
+
+/* ================= HEADER ================= */
 header{
   background:linear-gradient(90deg,#0b3c5d,#1d6fa5);
   color:#fff;
@@ -22,13 +24,15 @@ header{
   font-weight:bold;
   box-shadow:0 2px 6px rgba(0,0,0,.25);
 }
+
+/* ================= MAP ================= */
 #map{height:calc(100% - 56px);}
 
 /* ================= INFO PANEL ================= */
 #infoPanel{
   position:absolute;
   top:80px; right:20px;
-  width:320px;
+  width:330px;
   background:#fff;
   border-radius:10px;
   box-shadow:0 10px 25px rgba(0,0,0,.25);
@@ -146,18 +150,23 @@ function tampilPanel(d,lat,lng){
 }
 function tutupPanel(){ panel.style.display="none"; }
 
-/* ================= LOAD DATA ================= */
+/* ================= LOAD DATA (ANTI GAGAL) ================= */
 fetch(API_URL)
 .then(r=>r.json())
 .then(j=>{
-  console.log("DATA GAS:",j);
-  if(!j.data) return alert("Data tidak ditemukan");
+  console.log("RAW GAS:",j);
 
-  j.data.forEach(d=>{
-    // 🔥 PAKAI HEADER ASLI: lat & long
-    const lat = Number(String(d.lat).replace(",","."));
-    const lng = Number(String(d.long).replace(",","."));
+  // 🔥 SUPER AMAN: apapun format GAS
+  const rows = Array.isArray(j) ? j : (j.data || j.rows || []);
 
+  if(!rows.length){
+    alert("Data tidak ditemukan");
+    return;
+  }
+
+  rows.forEach(d=>{
+    const lat = Number(String(d.lat||"").replace(",","."));
+    const lng = Number(String(d.long||d.lng||"").replace(",","."));
     if(isNaN(lat)||isNaN(lng)) return;
 
     const m = L.marker([lat,lng],{icon:iconPupr}).addTo(map);
