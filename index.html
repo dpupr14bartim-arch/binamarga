@@ -8,174 +8,88 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
 <style>
-/* ================= GLOBAL ================= */
-html,body{
-  margin:0;height:100%;
-  font-family:Segoe UI, Arial, sans-serif;
-  background:#f2f4f7;
-}
-
-/* ================= HEADER ================= */
+html,body{margin:0;height:100%;font-family:Segoe UI,Arial;}
 header{
-  background:linear-gradient(90deg,#0b3c5d,#1d6fa5);
-  color:#fff;
-  padding:14px 20px;
-  font-size:18px;
-  font-weight:bold;
-  box-shadow:0 2px 6px rgba(0,0,0,.25);
+  background:#0b3c5d;color:#fff;
+  padding:14px 20px;font-size:18px;font-weight:bold
 }
-
-/* ================= MAP ================= */
-#map{height:calc(100% - 56px);}
-
-/* ================= INFO PANEL ================= */
-#infoPanel{
-  position:absolute;
-  top:80px; right:20px;
-  width:330px;
-  background:#fff;
+#map{height:calc(100% - 56px)}
+#info{
+  position:absolute;top:80px;right:20px;
+  width:320px;background:#fff;
   border-radius:10px;
   box-shadow:0 10px 25px rgba(0,0,0,.25);
-  padding:14px;
-  display:none;
-  z-index:999;
+  padding:14px;display:none;z-index:999
 }
-#infoPanel h3{
-  margin:0 0 8px;
-  font-size:16px;
-  color:#0b3c5d;
-}
-#infoPanel .row{
-  font-size:13px;
-  margin-bottom:6px;
-  color:#333;
-}
-#infoPanel .label{
-  font-weight:bold;
-  color:#555;
-}
-#infoPanel img{
-  width:100%;
-  border-radius:8px;
-  margin-bottom:8px;
-}
-#infoPanel button{
-  width:100%;
-  margin-top:10px;
-  padding:8px;
-  border:none;
-  border-radius:6px;
-  background:#1d6fa5;
-  color:#fff;
-  font-weight:bold;
-  cursor:pointer;
-}
-#infoPanel button:hover{background:#155a87;}
+#info h3{margin:0 0 6px;color:#0b3c5d}
+#info div{font-size:13px;margin-bottom:4px}
+#info img{width:100%;border-radius:8px;margin-bottom:6px}
+button{width:100%;padding:8px;border:none;border-radius:6px;
+  background:#1d6fa5;color:#fff;font-weight:bold;cursor:pointer}
 </style>
 </head>
 
 <body>
 
-<header>
-  🏗️ Web GIS Jembatan — Kabupaten Barito Timur
-</header>
-
+<header>🏗️ Web GIS Jembatan — Kabupaten Barito Timur</header>
 <div id="map"></div>
 
-<!-- PANEL INFO -->
-<div id="infoPanel">
-  <img id="pFoto" src="">
-  <h3 id="pNama"></h3>
-  <div class="row"><span class="label">No Jembatan:</span> <span id="pNo"></span></div>
-  <div class="row"><span class="label">Kecamatan:</span> <span id="pKec"></span></div>
-  <div class="row"><span class="label">Desa:</span> <span id="pDesa"></span></div>
-  <div class="row"><span class="label">Ruas Jalan:</span> <span id="pRuas"></span></div>
-  <div class="row"><span class="label">Jenis:</span> <span id="pJenis"></span></div>
-  <div class="row"><span class="label">Panjang:</span> <span id="pPanjang"></span> m</div>
-  <div class="row"><span class="label">Lebar:</span> <span id="pLebar"></span> m</div>
-  <div class="row"><span class="label">Bentang:</span> <span id="pBentang"></span></div>
-  <div class="row"><span class="label">Kondisi:</span> <span id="pKondisi"></span></div>
-  <div class="row"><span class="label">Koordinat:</span> <span id="pKoord"></span></div>
-  <button onclick="tutupPanel()">Tutup</button>
+<div id="info">
+  <img id="foto">
+  <h3 id="nama"></h3>
+  <div><b>No:</b> <span id="no"></span></div>
+  <div><b>Kecamatan:</b> <span id="kec"></span></div>
+  <div><b>Desa:</b> <span id="desa"></span></div>
+  <div><b>Ruas:</b> <span id="ruas"></span></div>
+  <div><b>Kondisi:</b> <span id="kondisi"></span></div>
+  <div><b>Koordinat:</b> <span id="koord"></span></div>
+  <button onclick="info.style.display='none'">Tutup</button>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-/* ================= KONFIG ================= */
-const API_URL =
-"https://script.google.com/macros/s/AKfycbyyAaZcRtIsm7Zh0dVBBqdM-sMInBcHo_5_RiqbGrTKyw_CUyFTemHHJJ0iK6qMm9slgQ/exec";
+const SHEET_ID = "2PACX-1vS0l1d28uY4bvgo-SBYk37jv22KVE3lRJY19NKuZ8XtsxxIsw3syOJfAATUBO0ZdYRgR0lAVNWIjgQ0";
+const SHEET_NAME = "data_jembatan";
 
-/* ================= MAP ================= */
 const map = L.map("map").setView([-2.1,115.2],9);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
-  attribution:"© OpenStreetMap"
-}).addTo(map);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
-/* ================= ICON ================= */
-const iconPupr = L.icon({
+const icon = L.icon({
   iconUrl:"pupr.png",
   iconSize:[36,36],
   iconAnchor:[18,36]
 });
 
-/* ================= PANEL ELEM ================= */
-const panel = document.getElementById("infoPanel");
-const pFoto = document.getElementById("pFoto");
-const pNama = document.getElementById("pNama");
-const pNo = document.getElementById("pNo");
-const pKec = document.getElementById("pKec");
-const pDesa = document.getElementById("pDesa");
-const pRuas = document.getElementById("pRuas");
-const pJenis = document.getElementById("pJenis");
-const pPanjang = document.getElementById("pPanjang");
-const pLebar = document.getElementById("pLebar");
-const pBentang = document.getElementById("pBentang");
-const pKondisi = document.getElementById("pKondisi");
-const pKoord = document.getElementById("pKoord");
+const info = document.getElementById("info");
 
-function tampilPanel(d,lat,lng){
-  pFoto.src = d.foto || "https://via.placeholder.com/300x180?text=No+Photo";
-  pNama.innerText = d.nama_jembatan || "-";
-  pNo.innerText = d.no_jembatan || "-";
-  pKec.innerText = d.kecamatan || "-";
-  pDesa.innerText = d.desa_kelurahan || "-";
-  pRuas.innerText = d.ruas_jalan || "-";
-  pJenis.innerText = d.jenis_konstruksi || "-";
-  pPanjang.innerText = d.panjang || "-";
-  pLebar.innerText = d.lebar || "-";
-  pBentang.innerText = d.jumlah_bentang || "-";
-  pKondisi.innerText = d.kondisi || "-";
-  pKoord.innerText = lat.toFixed(6)+", "+lng.toFixed(6);
-  panel.style.display="block";
-}
-function tutupPanel(){ panel.style.display="none"; }
+fetch(
+  `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tqx=out:json`
+)
+.then(r=>r.text())
+.then(t=>{
+  const json = JSON.parse(t.substring(47).slice(0,-2));
+  const cols = json.table.cols.map(c=>c.label);
+  json.table.rows.forEach(r=>{
+    const d = {};
+    r.c.forEach((c,i)=>d[cols[i]]=c?c.v:"");
 
-/* ================= LOAD DATA (ANTI GAGAL) ================= */
-fetch(API_URL)
-.then(r=>r.json())
-.then(j=>{
-  console.log("RAW GAS:",j);
-
-  // 🔥 SUPER AMAN: apapun format GAS
-  const rows = Array.isArray(j) ? j : (j.data || j.rows || []);
-
-  if(!rows.length){
-    alert("Data tidak ditemukan");
-    return;
-  }
-
-  rows.forEach(d=>{
-    const lat = Number(String(d.lat||"").replace(",","."));
-    const lng = Number(String(d.long||d.lng||"").replace(",","."));
+    const lat = Number(String(d.lat).replace(",","."));
+    const lng = Number(String(d.long).replace(",","."));
     if(isNaN(lat)||isNaN(lng)) return;
 
-    const m = L.marker([lat,lng],{icon:iconPupr}).addTo(map);
-    m.on("click",()=>tampilPanel(d,lat,lng));
+    const m=L.marker([lat,lng],{icon}).addTo(map);
+    m.on("click",()=>{
+      foto.src=d.foto||"https://via.placeholder.com/300x180";
+      nama.innerText=d.nama_jembatan;
+      no.innerText=d.no_jembatan;
+      kec.innerText=d.kecamatan;
+      desa.innerText=d.desa_kelurahan;
+      ruas.innerText=d.ruas_jalan;
+      kondisi.innerText=d.kondisi;
+      koord.innerText=lat.toFixed(6)+", "+lng.toFixed(6);
+      info.style.display="block";
+    });
   });
-})
-.catch(e=>{
-  console.error(e);
-  alert("Gagal konek ke Spreadsheet");
 });
 </script>
 
