@@ -2,49 +2,192 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Web GIS Jembatan Barito Timur</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistem Informasi Jembatan — PUPR Kabupaten Barito Timur</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
 <style>
-body{margin:0;font-family:Segoe UI;background:#071427;color:#e0f7ff}
-#map{height:100vh}
-#info{
-  position:absolute;top:20px;right:20px;width:320px;
-  background:#071a33;padding:12px;border-radius:12px;
-  box-shadow:0 0 20px #00eaff66;display:none;z-index:999
+/* =====================================================
+   === PUPR BINA MARGA THEME — PROFESIONAL ===
+===================================================== */
+
+body{
+  margin:0;
+  background:linear-gradient(180deg,#0a1a2a,#08131f);
+  color:#eaf4ff;
+  font-family:"Segoe UI",sans-serif;
 }
-#info img{width:100%;border-radius:8px;margin-bottom:8px}
+
+/* HEADER */
+header{
+  padding:18px;
+  text-align:center;
+  background:linear-gradient(180deg,#0b3c5d,#082c45);
+  border-bottom:3px solid #f4b400;
+  box-shadow:0 3px 25px rgba(0,0,0,.6);
+}
+header h1{
+  margin:0;
+  font-size:1.6rem;
+  letter-spacing:.5px;
+}
+header small{
+  color:#ffe08a;
+}
+
+/* CONTAINER */
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:15px;
+}
+
+/* CONTROL PANEL */
+.panel{
+  background:#0e253a;
+  padding:14px;
+  border-radius:12px;
+  border-left:6px solid #f4b400;
+  box-shadow:0 0 20px rgba(0,0,0,.5);
+  margin-bottom:15px;
+}
+
+/* SELECT */
+select{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:none;
+  font-size:15px;
+  background:#102a40;
+  color:#fff;
+}
+
+/* MAP */
+#map{
+  height:520px;
+  border-radius:14px;
+  box-shadow:0 0 25px rgba(0,0,0,.7);
+}
+
+/* INFO PANEL */
+#info{
+  position:absolute;
+  top:100px;
+  right:25px;
+  width:320px;
+  background:#0e253a;
+  border-radius:14px;
+  padding:12px;
+  box-shadow:0 0 25px rgba(0,0,0,.7);
+  display:none;
+  z-index:999;
+  animation:fadeSlide .35s ease-out;
+}
+@keyframes fadeSlide{
+  from{transform:translateX(20px);opacity:0}
+  to{transform:translateX(0);opacity:1}
+}
+
+#info img{
+  width:100%;
+  border-radius:10px;
+  margin-bottom:8px;
+  border:2px solid #f4b400;
+}
+
+.label{
+  font-size:12px;
+  color:#9ecbff;
+}
+.value{
+  font-weight:bold;
+  margin-bottom:4px;
+}
+
+/* FOOTER */
+footer{
+  margin-top:30px;
+  padding:15px;
+  text-align:center;
+  background:#0b3c5d;
+  color:#ffe08a;
+  font-weight:bold;
+}
 </style>
 </head>
+
 <body>
 
-<div id="map"></div>
+<header>
+  <h1>Sistem Informasi Jembatan</h1>
+  <small>Dinas PUPR Kabupaten Barito Timur</small>
+</header>
 
+<div class="container">
+
+  <div class="panel">
+    <label>Pilih Kecamatan</label>
+    <select id="kecamatanSelect">
+      <option value="ALL">— Semua Kecamatan —</option>
+    </select>
+  </div>
+
+  <div id="map"></div>
+
+</div>
+
+<!-- INFO PANEL -->
 <div id="info">
   <img id="foto">
-  <b id="nama"></b><br>
-  No: <span id="no"></span><br>
-  Kecamatan: <span id="kec"></span><br>
-  Desa: <span id="desa"></span><br>
-  Ruas: <span id="ruas"></span><br>
-  Kondisi: <span id="kondisi"></span><br>
-  Koordinat: <span id="koord"></span>
+  <div class="label">Nama Jembatan</div>
+  <div class="value" id="nama"></div>
+
+  <div class="label">Nomor Jembatan</div>
+  <div class="value" id="no"></div>
+
+  <div class="label">Kecamatan</div>
+  <div class="value" id="kec"></div>
+
+  <div class="label">Desa / Kelurahan</div>
+  <div class="value" id="desa"></div>
+
+  <div class="label">Ruas Jalan</div>
+  <div class="value" id="ruas"></div>
+
+  <div class="label">Kondisi</div>
+  <div class="value" id="kondisi"></div>
+
+  <div class="label">Koordinat</div>
+  <div class="value" id="koord"></div>
 </div>
+
+<footer>
+  © 2025 • Dinas Pekerjaan Umum dan Penataan Ruang  
+  Kabupaten Barito Timur
+</footer>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-const API_URL = "PASTE_URL_GAS_BARU_DI_SINI";
+/* ================= KONFIG ================= */
+const API_URL = "PASTE_URL_GAS_EXEC_DI_SINI";
 
+/* ================= MAP ================= */
 const map = L.map("map").setView([-2.1,115.2],9);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+const layer = L.layerGroup().addTo(map);
 
 const icon = L.icon({
   iconUrl:"pupr.png",
-  iconSize:[36,36],
-  iconAnchor:[18,36]
+  iconSize:[38,38],
+  iconAnchor:[19,38]
 });
 
+/* ================= DOM ================= */
+const kecSelect = document.getElementById("kecamatanSelect");
 const info = document.getElementById("info");
+
 const foto = document.getElementById("foto");
 const nama = document.getElementById("nama");
 const no = document.getElementById("no");
@@ -54,17 +197,25 @@ const ruas = document.getElementById("ruas");
 const kondisi = document.getElementById("kondisi");
 const koord = document.getElementById("koord");
 
-fetch(API_URL)
-.then(r=>r.json())
-.then(j=>{
-  if(j.status!=="success") throw j.message;
+/* ================= LOAD DATA ================= */
+kecSelect.onchange = loadData;
 
-  j.data.forEach(d=>{
-    const lat = Number(String(d.lat).replace(",","."));
-    const lng = Number(String(d.long).replace(",","."));
-    if(isNaN(lat)||isNaN(lng)) return;
+async function loadData(){
+  const k = kecSelect.value;
+  layer.clearLayers();
+  info.style.display="none";
 
-    const m = L.marker([lat,lng],{icon}).addTo(map);
+  const res = await fetch(`${API_URL}?kecamatan=${encodeURIComponent(k)}`);
+  const json = await res.json();
+  if(json.status!=="success") return alert(json.message);
+
+  const kecSet = new Set();
+
+  json.data.forEach(d=>{
+    kecSet.add(d.kecamatan);
+    if(isNaN(d.lat)||isNaN(d.lng)) return;
+
+    const m = L.marker([d.lat,d.lng],{icon}).addTo(layer);
     m.on("click",()=>{
       foto.src = d.foto || "https://via.placeholder.com/300x180";
       nama.innerText = d.nama_jembatan;
@@ -73,12 +224,23 @@ fetch(API_URL)
       desa.innerText = d.desa_kelurahan;
       ruas.innerText = d.ruas_jalan;
       kondisi.innerText = d.kondisi;
-      koord.innerText = lat.toFixed(6)+", "+lng.toFixed(6);
+      koord.innerText = d.lat.toFixed(6)+", "+d.lng.toFixed(6);
       info.style.display="block";
     });
   });
-})
-.catch(e=>alert("Gagal load data: "+e));
+
+  if(kecSelect.options.length===1){
+    [...kecSet].sort().forEach(v=>{
+      const o=document.createElement("option");
+      o.value=v;
+      o.textContent=v;
+      kecSelect.appendChild(o);
+    });
+  }
+}
+
+/* LOAD AWAL */
+loadData();
 </script>
 
 </body>
