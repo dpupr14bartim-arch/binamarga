@@ -316,9 +316,17 @@ select{
   </div>
 
   <div class="info-block">
-    <div class="label">Koordinat</div>
-    <div class="value" id="koord"></div>
+  <div class="label">Koordinat</div>
+  <div class="value">
+    <a id="koord"
+       href="#"
+       target="_blank"
+       style="color:#4dd0ff;text-decoration:none">
+      -
+    </a>
   </div>
+</div>
+
 
 </div>
 
@@ -394,19 +402,17 @@ async function loadData(){
 
 /* ================= PANEL INFO ================= */
 function showInfo(d){
-  foto.src = d.foto || "https://via.placeholder.com/300x180";
+  const lat = Number(d.lat).toFixed(6);
+  const lng = Number(d.lng).toFixed(6);
 
+  foto.src = d.foto || "https://via.placeholder.com/300x180";
   no.innerText = d.no_jembatan || "-";
   nama.innerText = d.nama_jembatan || "-";
   kec.innerText = d.kecamatan || "-";
   desa.innerText = d.desa_kelurahan || "-";
   ruas.innerText = d.ruas_jalan || "-";
 
-  ukuran.innerText =
-    (d.panjang && d.lebar)
-    ? `${d.panjang} m × ${d.lebar} m`
-    : "-";
-
+  ukuran.innerText = `${d.panjang || "-"} m × ${d.lebar || "-"} m`;
   bentang.innerText = d.jumlah_bentang || "-";
   atas.innerText = d.tipe_bangunan_atas || "-";
   bawah.innerText = d.tipe_bangunan_bawah || "-";
@@ -415,13 +421,14 @@ function showInfo(d){
 
   kondisi.innerText = d.kondisi || "-";
 
-  koord.innerText =
-    (!isNaN(d.lat) && !isNaN(d.lng))
-    ? d.lat.toFixed(6)+", "+d.lng.toFixed(6)
-    : "-";
+  // === KOORDINAT KLIK KE GOOGLE MAPS ===
+  koord.innerText = lat + ", " + lng;
+  koord.href = "https://www.google.com/maps?q=" + lat + "," + lng;
+  koord.title = "Buka di Google Maps"; // ⬅️ INI LETAKNYA
 
-  panel.style.display="block";
+  panel.style.display = "block";
 }
+
 
 </script>
 
