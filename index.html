@@ -8,75 +8,65 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
 <style>
-/* ================== GLOBAL ================== */
-html, body {
-  margin: 0;
-  height: 100%;
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: #f4f6f9;
+/* ================= GLOBAL ================= */
+html,body{
+  margin:0;height:100%;
+  font-family:Segoe UI, Arial, sans-serif;
+  background:#f2f4f7;
 }
+header{
+  background:linear-gradient(90deg,#0b3c5d,#1d6fa5);
+  color:#fff;
+  padding:14px 20px;
+  font-size:18px;
+  font-weight:bold;
+  box-shadow:0 2px 6px rgba(0,0,0,.25);
+}
+#map{height:calc(100% - 56px);}
 
-/* ================== HEADER ================== */
-header {
-  background: linear-gradient(90deg, #0b3c5d, #1d6fa5);
-  color: #fff;
-  padding: 14px 20px;
-  font-size: 18px;
-  font-weight: bold;
-  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+/* ================= INFO PANEL ================= */
+#infoPanel{
+  position:absolute;
+  top:80px; right:20px;
+  width:320px;
+  background:#fff;
+  border-radius:10px;
+  box-shadow:0 10px 25px rgba(0,0,0,.25);
+  padding:14px;
+  display:none;
+  z-index:999;
 }
-
-/* ================== MAP ================== */
-#map {
-  height: calc(100% - 56px);
-  width: 100%;
+#infoPanel h3{
+  margin:0 0 8px;
+  font-size:16px;
+  color:#0b3c5d;
 }
-
-/* ================== INFO PANEL ================== */
-#infoPanel {
-  position: absolute;
-  top: 80px;
-  right: 20px;
-  width: 300px;
-  background: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.25);
-  padding: 14px;
-  display: none;
-  z-index: 999;
+#infoPanel .row{
+  font-size:13px;
+  margin-bottom:6px;
+  color:#333;
 }
-
-#infoPanel h3 {
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  color: #0b3c5d;
+#infoPanel .label{
+  font-weight:bold;
+  color:#555;
 }
-
-#infoPanel .row {
-  font-size: 13px;
-  margin-bottom: 6px;
-  color: #333;
+#infoPanel img{
+  width:100%;
+  border-radius:8px;
+  margin-bottom:8px;
 }
-
-#infoPanel .label {
-  font-weight: bold;
-  color: #555;
+#infoPanel button{
+  width:100%;
+  margin-top:10px;
+  padding:8px;
+  border:none;
+  border-radius:6px;
+  background:#1d6fa5;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
 }
-
-#infoPanel button {
-  margin-top: 10px;
-  width: 100%;
-  padding: 8px;
-  border: none;
-  border-radius: 6px;
-  background: #1d6fa5;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-}
-#infoPanel button:hover {
-  background: #155a87;
-}
+#infoPanel button:hover{background:#155a87;}
 </style>
 </head>
 
@@ -88,11 +78,19 @@ header {
 
 <div id="map"></div>
 
-<!-- INFO PANEL -->
+<!-- PANEL INFO -->
 <div id="infoPanel">
-  <h3 id="pNama">Nama Jembatan</h3>
+  <img id="pFoto" src="">
+  <h3 id="pNama"></h3>
+  <div class="row"><span class="label">No Jembatan:</span> <span id="pNo"></span></div>
   <div class="row"><span class="label">Kecamatan:</span> <span id="pKec"></span></div>
+  <div class="row"><span class="label">Desa:</span> <span id="pDesa"></span></div>
   <div class="row"><span class="label">Ruas Jalan:</span> <span id="pRuas"></span></div>
+  <div class="row"><span class="label">Jenis:</span> <span id="pJenis"></span></div>
+  <div class="row"><span class="label">Panjang:</span> <span id="pPanjang"></span> m</div>
+  <div class="row"><span class="label">Lebar:</span> <span id="pLebar"></span> m</div>
+  <div class="row"><span class="label">Bentang:</span> <span id="pBentang"></span></div>
+  <div class="row"><span class="label">Kondisi:</span> <span id="pKondisi"></span></div>
   <div class="row"><span class="label">Koordinat:</span> <span id="pKoord"></span></div>
   <button onclick="tutupPanel()">Tutup</button>
 </div>
@@ -101,60 +99,75 @@ header {
 <script>
 /* ================= KONFIG ================= */
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbyyAaZcRtIsm7Zh0dVBBqdM-sMInBcHo_5_RiqbGrTKyw_CUyFTemHHJJ0iK6qMm9slgQ/exec";
+"https://script.google.com/macros/s/AKfycbyyAaZcRtIsm7Zh0dVBBqdM-sMInBcHo_5_RiqbGrTKyw_CUyFTemHHJJ0iK6qMm9slgQ/exec";
 
 /* ================= MAP ================= */
-const map = L.map("map").setView([-2.1, 115.2], 9);
-
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "© OpenStreetMap"
+const map = L.map("map").setView([-2.1,115.2],9);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+  attribution:"© OpenStreetMap"
 }).addTo(map);
 
 /* ================= ICON ================= */
 const iconPupr = L.icon({
-  iconUrl: "pupr.png",
-  iconSize: [36, 36],
-  iconAnchor: [18, 36],
-  popupAnchor: [0, -30]
+  iconUrl:"pupr.png",
+  iconSize:[36,36],
+  iconAnchor:[18,36]
 });
 
-/* ================= PANEL ================= */
+/* ================= PANEL ELEM ================= */
 const panel = document.getElementById("infoPanel");
+const pFoto = document.getElementById("pFoto");
 const pNama = document.getElementById("pNama");
-const pKec  = document.getElementById("pKec");
+const pNo = document.getElementById("pNo");
+const pKec = document.getElementById("pKec");
+const pDesa = document.getElementById("pDesa");
 const pRuas = document.getElementById("pRuas");
-const pKoord= document.getElementById("pKoord");
+const pJenis = document.getElementById("pJenis");
+const pPanjang = document.getElementById("pPanjang");
+const pLebar = document.getElementById("pLebar");
+const pBentang = document.getElementById("pBentang");
+const pKondisi = document.getElementById("pKondisi");
+const pKoord = document.getElementById("pKoord");
 
-function tampilPanel(d, lat, lng){
-  pNama.innerText = d.nama_jembatan || "Jembatan";
-  pKec.innerText  = d.kecamatan || "-";
+function tampilPanel(d,lat,lng){
+  pFoto.src = d.foto || "https://via.placeholder.com/300x180?text=No+Photo";
+  pNama.innerText = d.nama_jembatan || "-";
+  pNo.innerText = d.no_jembatan || "-";
+  pKec.innerText = d.kecamatan || "-";
+  pDesa.innerText = d.desa_kelurahan || "-";
   pRuas.innerText = d.ruas_jalan || "-";
-  pKoord.innerText= lat.toFixed(6) + ", " + lng.toFixed(6);
-  panel.style.display = "block";
+  pJenis.innerText = d.jenis_konstruksi || "-";
+  pPanjang.innerText = d.panjang || "-";
+  pLebar.innerText = d.lebar || "-";
+  pBentang.innerText = d.jumlah_bentang || "-";
+  pKondisi.innerText = d.kondisi || "-";
+  pKoord.innerText = lat.toFixed(6)+", "+lng.toFixed(6);
+  panel.style.display="block";
 }
-function tutupPanel(){
-  panel.style.display = "none";
-}
+function tutupPanel(){ panel.style.display="none"; }
 
 /* ================= LOAD DATA ================= */
 fetch(API_URL)
-  .then(r => r.json())
-  .then(j => {
-    if (!j.data) return alert("Data tidak ditemukan");
+.then(r=>r.json())
+.then(j=>{
+  console.log("DATA GAS:",j);
+  if(!j.data) return alert("Data tidak ditemukan");
 
-    j.data.forEach(d => {
-      const lat = Number(String(d.lat).replace(",", "."));
-      const lng = Number(String(d.lng).replace(",", "."));
-      if (isNaN(lat) || isNaN(lng)) return;
+  j.data.forEach(d=>{
+    // 🔥 PAKAI HEADER ASLI: lat & long
+    const lat = Number(String(d.lat).replace(",","."));
+    const lng = Number(String(d.long).replace(",","."));
 
-      const m = L.marker([lat, lng], { icon: iconPupr }).addTo(map);
-      m.on("click", () => tampilPanel(d, lat, lng));
-    });
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Gagal konek ke spreadsheet");
+    if(isNaN(lat)||isNaN(lng)) return;
+
+    const m = L.marker([lat,lng],{icon:iconPupr}).addTo(map);
+    m.on("click",()=>tampilPanel(d,lat,lng));
   });
+})
+.catch(e=>{
+  console.error(e);
+  alert("Gagal konek ke Spreadsheet");
+});
 </script>
 
 </body>
