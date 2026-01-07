@@ -12,6 +12,52 @@ body{margin:0;background:#0a1a2a;color:#eaf4ff;font-family:Segoe UI}
 header{padding:18px;text-align:center;background:#0b3c5d;border-bottom:3px solid #f4b400}
 header h1{margin:0;font-size:1.6rem}
 header small{color:#ffe08a}
+/* ===== HEADER PUPR ===== */
+.header{
+  background: linear-gradient(180deg,#0b3c5d,#082c45);
+  border-bottom: 3px solid #f4b400;
+  box-shadow: 0 4px 25px rgba(0,0,0,.6);
+}
+
+.header-inner{
+  max-width:1200px;
+  margin:auto;
+  padding:14px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.logo{
+  height:64px;
+  object-fit:contain;
+}
+
+.logo.kiri{
+  margin-right:10px;
+}
+
+.logo.kanan{
+  margin-left:10px;
+}
+
+.judul{
+  text-align:center;
+  flex:1;
+}
+
+.judul-utama{
+  font-size:1.7rem;
+  font-weight:700;
+  color:#ffffff;
+  letter-spacing:.6px;
+}
+
+.judul-sub{
+  font-size:.95rem;
+  color:#ffe08a;
+  margin-top:4px;
+}
 
 #map{height:65vh}
 
@@ -34,10 +80,24 @@ img{width:100%;border-radius:10px;border:2px solid #f4b400}
 
 <body>
 
-<header>
-<h1>Sistem Informasi Jembatan</h1>
-<small>Dinas PUPR Kabupaten Barito Timur</small>
+<header class="header">
+  <div class="header-inner">
+
+    <!-- LOGO KIRI -->
+    <img src="bartim.png" class="logo kiri" alt="Logo Barito Timur">
+
+    <!-- JUDUL -->
+    <div class="judul">
+      <div class="judul-utama">Sistem Informasi Jembatan</div>
+      <div class="judul-sub">Dinas PUPR Kabupaten Barito Timur</div>
+    </div>
+
+    <!-- LOGO KANAN -->
+    <img src="logopupr.png" class="logo kanan" alt="Logo PUPR">
+
+  </div>
 </header>
+
 
 <select id="filterKec" style="margin:10px">
 <option value="ALL">SEMUA KECAMATAN</option>
