@@ -2,54 +2,38 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Web GIS Jembatan Kabupaten Barito Timur</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web GIS Jembatan Barito Timur</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-
 <style>
-html,body{margin:0;height:100%;font-family:Segoe UI,Arial;}
-header{
-  background:#0b3c5d;color:#fff;
-  padding:14px 20px;font-size:18px;font-weight:bold
-}
-#map{height:calc(100% - 56px)}
+body{margin:0;font-family:Segoe UI;background:#071427;color:#e0f7ff}
+#map{height:100vh}
 #info{
-  position:absolute;top:80px;right:20px;
-  width:320px;background:#fff;
-  border-radius:10px;
-  box-shadow:0 10px 25px rgba(0,0,0,.25);
-  padding:14px;display:none;z-index:999
+  position:absolute;top:20px;right:20px;width:320px;
+  background:#071a33;padding:12px;border-radius:12px;
+  box-shadow:0 0 20px #00eaff66;display:none;z-index:999
 }
-#info h3{margin:0 0 6px;color:#0b3c5d}
-#info div{font-size:13px;margin-bottom:4px}
-#info img{width:100%;border-radius:8px;margin-bottom:6px}
-button{width:100%;padding:8px;border:none;border-radius:6px;
-  background:#1d6fa5;color:#fff;font-weight:bold;cursor:pointer}
+#info img{width:100%;border-radius:8px;margin-bottom:8px}
 </style>
 </head>
-
 <body>
 
-<header>🏗️ Web GIS Jembatan — Kabupaten Barito Timur</header>
 <div id="map"></div>
 
 <div id="info">
   <img id="foto">
-  <h3 id="nama"></h3>
-  <div><b>No:</b> <span id="no"></span></div>
-  <div><b>Kecamatan:</b> <span id="kec"></span></div>
-  <div><b>Desa:</b> <span id="desa"></span></div>
-  <div><b>Ruas:</b> <span id="ruas"></span></div>
-  <div><b>Kondisi:</b> <span id="kondisi"></span></div>
-  <div><b>Koordinat:</b> <span id="koord"></span></div>
-  <button onclick="info.style.display='none'">Tutup</button>
+  <b id="nama"></b><br>
+  No: <span id="no"></span><br>
+  Kecamatan: <span id="kec"></span><br>
+  Desa: <span id="desa"></span><br>
+  Ruas: <span id="ruas"></span><br>
+  Kondisi: <span id="kondisi"></span><br>
+  Koordinat: <span id="koord"></span>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-const SHEET_ID = "2PACX-1vS0l1d28uY4bvgo-SBYk37jv22KVE3lRJY19NKuZ8XtsxxIsw3syOJfAATUBO0ZdYRgR0lAVNWIjgQ0";
-const SHEET_NAME = "data_jembatan";
+const API_URL = "PASTE_URL_GAS_BARU_DI_SINI";
 
 const map = L.map("map").setView([-2.1,115.2],9);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
@@ -61,36 +45,40 @@ const icon = L.icon({
 });
 
 const info = document.getElementById("info");
+const foto = document.getElementById("foto");
+const nama = document.getElementById("nama");
+const no = document.getElementById("no");
+const kec = document.getElementById("kec");
+const desa = document.getElementById("desa");
+const ruas = document.getElementById("ruas");
+const kondisi = document.getElementById("kondisi");
+const koord = document.getElementById("koord");
 
-fetch(
-  `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/gviz/tq?sheet=${SHEET_NAME}&tqx=out:json`
-)
-.then(r=>r.text())
-.then(t=>{
-  const json = JSON.parse(t.substring(47).slice(0,-2));
-  const cols = json.table.cols.map(c=>c.label);
-  json.table.rows.forEach(r=>{
-    const d = {};
-    r.c.forEach((c,i)=>d[cols[i]]=c?c.v:"");
+fetch(API_URL)
+.then(r=>r.json())
+.then(j=>{
+  if(j.status!=="success") throw j.message;
 
+  j.data.forEach(d=>{
     const lat = Number(String(d.lat).replace(",","."));
     const lng = Number(String(d.long).replace(",","."));
     if(isNaN(lat)||isNaN(lng)) return;
 
-    const m=L.marker([lat,lng],{icon}).addTo(map);
+    const m = L.marker([lat,lng],{icon}).addTo(map);
     m.on("click",()=>{
-      foto.src=d.foto||"https://via.placeholder.com/300x180";
-      nama.innerText=d.nama_jembatan;
-      no.innerText=d.no_jembatan;
-      kec.innerText=d.kecamatan;
-      desa.innerText=d.desa_kelurahan;
-      ruas.innerText=d.ruas_jalan;
-      kondisi.innerText=d.kondisi;
-      koord.innerText=lat.toFixed(6)+", "+lng.toFixed(6);
+      foto.src = d.foto || "https://via.placeholder.com/300x180";
+      nama.innerText = d.nama_jembatan;
+      no.innerText = d.no_jembatan;
+      kec.innerText = d.kecamatan;
+      desa.innerText = d.desa_kelurahan;
+      ruas.innerText = d.ruas_jalan;
+      kondisi.innerText = d.kondisi;
+      koord.innerText = lat.toFixed(6)+", "+lng.toFixed(6);
       info.style.display="block";
     });
   });
-});
+})
+.catch(e=>alert("Gagal load data: "+e));
 </script>
 
 </body>
