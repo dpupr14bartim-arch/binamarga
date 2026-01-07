@@ -68,31 +68,75 @@ select{
   box-shadow:0 0 18px #000;
 }
 
-/* ===== PANEL INFO ===== */
+/* ===== PANEL INFO (UPGRADE) ===== */
 #panel{
   position:absolute;
   top:100px;
   right:20px;
   width:340px;
-  background:#071427;
-  border-radius:14px;
-  padding:12px;
-  box-shadow:0 0 25px rgba(0,0,0,.8);
+  background:linear-gradient(180deg,#071a33,#050f22);
+  border-radius:16px;
+  padding:14px 14px 18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.85);
   display:none;
   z-index:999;
+  animation:slideIn .25s ease;
 }
+
+@keyframes slideIn{
+  from{transform:translateX(20px);opacity:0}
+  to{transform:translateX(0);opacity:1}
+}
+
+/* FOTO */
 #panel img{
   width:100%;
-  border-radius:10px;
+  border-radius:12px;
   border:2px solid #f4b400;
-  margin-bottom:6px;
+  margin-bottom:10px;
+  background:#000;
 }
-.label{font-size:12px;color:#9ecbff}
-.value{font-weight:bold;margin-bottom:4px}
-  /* ===== MARKER PUPR ===== */
+
+/* INFO BLOCK */
+.info-block{
+  margin-bottom:8px;
+  padding-bottom:6px;
+  border-bottom:1px dashed rgba(255,255,255,.08);
+}
+
+.label{
+  font-size:11px;
+  color:#9ecbff;
+  letter-spacing:.4px;
+  margin-bottom:2px;
+}
+
+.value{
+  font-weight:600;
+  font-size:14px;
+  line-height:1.35;
+  color:#ffffff;
+}
+
+/* ===== KONDISI BADGE ===== */
+.badge{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:700;
+}
+
+.badge.baik{background:#1dd1a1;color:#022}
+.badge.rusak{background:#ff9f43;color:#220}
+.badge.berat{background:#ee5253;color:#fff}
+
+/* ===== MOBILE MODE ===== */
+
+/* ===== MARKER PUPR (DIPERHALUS) ===== */
 .marker-pupr{
-  width:38px;
-  height:38px;
+  width:32px;
+  height:32px;
   background: radial-gradient(circle at top,#ffd84d,#f4b400);
   border-radius:50%;
   border:2px solid #ffffff;
@@ -106,8 +150,8 @@ select{
 }
 
 .marker-pupr img{
-  width:20px;
-  height:20px;
+  width:16px;
+  height:16px;
   object-fit:contain;
   pointer-events:none;
 }
@@ -118,6 +162,53 @@ select{
     0 6px 16px rgba(0,0,0,.6),
     inset 0 -3px 6px rgba(0,0,0,.25);
 }
+
+/* ===== PANEL HEADER + CLOSE ===== */
+.panel-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+
+.panel-title{
+  font-weight:700;
+  font-size:14px;
+  color:#ffe08a;
+  letter-spacing:.5px;
+}
+
+.panel-close{
+  background:none;
+  border:none;
+  color:#fff;
+  font-size:22px;
+  cursor:pointer;
+  line-height:1;
+}
+
+/* SCROLL PANEL */
+#panel{
+  max-height:75vh;
+  overflow-y:auto;
+}
+
+/* MOBILE ENHANCEMENT */
+@media(max-width:768px){
+  #panel{
+    top:auto;
+    bottom:0;
+    left:0;
+    right:0;
+    width:100%;
+    max-height:55vh;
+    overflow-y:auto;
+    border-radius:18px 18px 0 0;
+    padding-bottom:20px;
+  }
+}
+
+
 
 </style>
 </head>
@@ -156,31 +247,81 @@ select{
 
 <!-- PANEL INFO -->
 <div id="panel">
+
+  <div class="panel-header">
+    <div class="panel-title">Informasi Jembatan</div>
+    <button class="panel-close" onclick="tutupPanel()">✕</button>
+  </div>
+
   <img id="foto">
-  <div class="label">Nomor Jembatan</div>
-  <div class="value" id="no"></div>
 
-  <div class="label">Nama Jembatan</div>
-  <div class="value" id="nama"></div>
+  <div class="info-block">
+    <div class="label">Nomor Jembatan</div>
+    <div class="value" id="no"></div>
+  </div>
 
-  <div class="label">Kecamatan</div>
-  <div class="value" id="kec"></div>
+  <div class="info-block">
+    <div class="label">Nama Jembatan</div>
+    <div class="value" id="nama"></div>
+  </div>
 
-  <div class="label">Desa</div>
-  <div class="value" id="desa"></div>
+  <div class="info-block">
+    <div class="label">Kecamatan</div>
+    <div class="value" id="kec"></div>
+  </div>
 
-  <div class="label">Ruas Jalan</div>
-  <div class="value" id="ruas"></div>
+  <div class="info-block">
+    <div class="label">Desa / Kelurahan</div>
+    <div class="value" id="desa"></div>
+  </div>
 
-  <div class="label">Panjang / Lebar (m)</div>
-  <div class="value" id="ukuran"></div>
+  <div class="info-block">
+    <div class="label">Ruas Jalan</div>
+    <div class="value" id="ruas"></div>
+  </div>
 
-  <div class="label">Kondisi</div>
-  <div class="value" id="kondisi"></div>
+  <div class="info-block">
+    <div class="label">Panjang × Lebar (m)</div>
+    <div class="value" id="ukuran"></div>
+  </div>
 
-  <div class="label">Koordinat</div>
-  <div class="value" id="koord"></div>
+  <div class="info-block">
+    <div class="label">Jumlah Bentang</div>
+    <div class="value" id="bentang"></div>
+  </div>
+
+  <div class="info-block">
+    <div class="label">Tipe Bangunan Atas</div>
+    <div class="value" id="atas"></div>
+  </div>
+
+  <div class="info-block">
+    <div class="label">Tipe Bangunan Bawah</div>
+    <div class="value" id="bawah"></div>
+  </div>
+
+  <div class="info-block">
+    <div class="label">Tipe Pondasi</div>
+    <div class="value" id="pondasi"></div>
+  </div>
+
+  <div class="info-block">
+    <div class="label">Tipe Lantai</div>
+    <div class="value" id="lantai"></div>
+  </div>
+
+  <div class="info-block">
+    <div class="label">Kondisi</div>
+    <div class="value" id="kondisi"></div>
+  </div>
+
+  <div class="info-block">
+    <div class="label">Koordinat</div>
+    <div class="value" id="koord"></div>
+  </div>
+
 </div>
+
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
@@ -218,6 +359,12 @@ const ruas = document.getElementById("ruas");
 const ukuran = document.getElementById("ukuran");
 const kondisi = document.getElementById("kondisi");
 const koord = document.getElementById("koord");
+const bentang = document.getElementById("bentang");
+const atas = document.getElementById("atas");
+const bawah = document.getElementById("bawah");
+const pondasi = document.getElementById("pondasi");
+const lantai = document.getElementById("lantai");
+
 
 /* ================= LOAD PER KECAMATAN ================= */
 filterKec.onchange = loadData;
@@ -248,17 +395,34 @@ async function loadData(){
 /* ================= PANEL INFO ================= */
 function showInfo(d){
   foto.src = d.foto || "https://via.placeholder.com/300x180";
+
   no.innerText = d.no_jembatan || "-";
   nama.innerText = d.nama_jembatan || "-";
   kec.innerText = d.kecamatan || "-";
   desa.innerText = d.desa_kelurahan || "-";
   ruas.innerText = d.ruas_jalan || "-";
-  ukuran.innerText = `${d.panjang||"-"} m × ${d.lebar||"-"} m`;
+
+  ukuran.innerText =
+    (d.panjang && d.lebar)
+    ? `${d.panjang} m × ${d.lebar} m`
+    : "-";
+
+  bentang.innerText = d.jumlah_bentang || "-";
+  atas.innerText = d.tipe_bangunan_atas || "-";
+  bawah.innerText = d.tipe_bangunan_bawah || "-";
+  pondasi.innerText = d.tipe_pondasi || "-";
+  lantai.innerText = d.tipe_lantai || "-";
+
   kondisi.innerText = d.kondisi || "-";
-  koord.innerText = d.lat.toFixed(6)+", "+d.lng.toFixed(6);
+
+  koord.innerText =
+    (!isNaN(d.lat) && !isNaN(d.lng))
+    ? d.lat.toFixed(6)+", "+d.lng.toFixed(6)
+    : "-";
 
   panel.style.display="block";
 }
+
 </script>
 
 </body>
