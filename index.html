@@ -1,1 +1,183 @@
-Testing
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Web GIS Jembatan Barito Timur</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+<style>
+html,body{margin:0;height:100%;font-family:Segoe UI,sans-serif;background:#020216;color:#e0f7ff}
+#map{height:100%}
+
+/* PANEL INFO */
+.info-panel{
+  position:absolute;
+  top:20px; right:20px;
+  width:340px; max-height:90%;
+  background:#071427ee;
+  border-radius:14px;
+  box-shadow:0 0 25px #00eaff55;
+  padding:14px;
+  z-index:999;
+  overflow:auto;
+}
+.info-panel img{
+  width:100%;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+.info-panel h3{margin:5px 0 10px;color:#18ff9c}
+.info-item{font-size:13px;margin:4px 0}
+hr{border:0;border-top:1px solid #124}
+button{
+  width:100%;margin-top:8px;
+  padding:10px;border-radius:10px;
+  border:none;font-weight:bold;
+  background:linear-gradient(90deg,#00eaff,#0088ff);
+  cursor:pointer;
+}
+input,select,textarea{
+  width:100%;margin-top:6px;
+  padding:9px;border-radius:8px;
+  border:none;background:#061a33;color:#e0f7ff;
+}
+.hidden{display:none}
+.close-btn{
+  position:absolute;top:6px;right:10px;
+  background:none;border:none;color:#ff7777;font-size:18px;cursor:pointer
+}
+</style>
+</head>
+
+<body>
+<div id="map"></div>
+
+<!-- PANEL INFO + FORM -->
+<div id="infoPanel" class="info-panel hidden">
+  <button class="close-btn" onclick="tutupInfo()">✖</button>
+
+  <img id="infoFoto">
+
+  <h3 id="infoNama"></h3>
+
+  <div class="info-item"><b>No:</b> <span id="infoNo"></span></div>
+  <div class="info-item"><b>Kecamatan:</b> <span id="infoKec"></span></div>
+  <div class="info-item"><b>Ruas:</b> <span id="infoRuas"></span></div>
+  <div class="info-item"><b>Jenis:</b> <span id="infoJenis"></span></div>
+  <div class="info-item"><b>Kondisi:</b> <span id="infoKondisi"></span></div>
+
+  <hr>
+
+  <!-- FORM UPDATE -->
+  <input id="rowIndex" readonly>
+  <input id="panjang" placeholder="Panjang (m)">
+  <input id="lebar" placeholder="Lebar (m)">
+  <input id="bentang" placeholder="Jumlah Bentang">
+
+  <select id="kondisi">
+    <option value="">Pilih Kondisi</option>
+    <option>Baik</option>
+    <option>Rusak Ringan</option>
+    <option>Rusak Berat</option>
+  </select>
+
+  <label>Upload Foto Jembatan</label>
+  <input type="file" id="foto" accept="image/*" capture="environment">
+
+  <button onclick="simpan()">💾 SIMPAN UPDATE</button>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+/* ================= KONFIG ================= */
+const API_URL = "https://script.google.com/macros/s/AKfycbyyAaZcRtIsm7Zh0dVBBqdM-sMInBcHo_5_RiqbGrTKyw_CUyFTemHHJJ0iK6qMm9slgQ/exec";
+
+/* ================= MAP ================= */
+const map = L.map("map").setView([-2.1,115.2],9);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
+const icon = L.divIcon({
+  html:`<div style="width:14px;height:14px;background:#18ff9c;border:2px solid #fff;border-radius:50%"></div>`,
+  iconSize:[14,14],iconAnchor:[7,7]
+});
+
+/* ================= LOAD DATA ================= */
+fetch(API_URL)
+.then(r=>r.json())
+.then(j=>{
+  j.data.forEach(d=>{
+    if(!d.lat||!d.lng) return;
+    const m=L.marker([d.lat,d.lng],{icon}).addTo(map);
+    m.on("click",()=>tampil(d));
+  });
+});
+
+/* ================= PANEL ================= */
+let currentData=null;
+
+function tampil(d){
+  currentData=d;
+  document.getElementById("infoPanel").classList.remove("hidden");
+  infoFoto.src=d.foto||"https://via.placeholder.com/300x180?text=No+Photo";
+  infoNama.innerText=d.nama_jembatan;
+  infoNo.innerText=d.no_jembatan;
+  infoKec.innerText=d.kecamatan;
+  infoRuas.innerText=d.ruas_jalan;
+  infoJenis.innerText=d.jenis_konstruksi;
+  infoKondisi.innerText=d.kondisi;
+
+  rowIndex.value=d.rowIndex;
+  panjang.value=d.panjang||"";
+  lebar.value=d.lebar||"";
+  bentang.value=d.jumlah_bentang||"";
+  kondisi.value=d.kondisi||"";
+
+  map.setView([d.lat,d.lng],16);
+}
+
+function tutupInfo(){
+  document.getElementById("infoPanel").classList.add("hidden");
+}
+
+/* ================= SIMPAN ================= */
+async function simpan(){
+  if(!currentData) return;
+
+  let fotoBase64="";
+  const file=foto.files[0];
+  if(file){
+    fotoBase64=await new Promise(r=>{
+      const fr=new FileReader();
+      fr.onload=()=>r(fr.result);
+      fr.readAsDataURL(file);
+    });
+  }
+
+  const payload={
+    rowIndex: rowIndex.value,
+    panjang: panjang.value,
+    lebar: lebar.value,
+    jumlah_bentang: bentang.value,
+    kondisi: kondisi.value,
+    kecamatan: currentData.kecamatan,
+    fotoBase64: fotoBase64
+  };
+
+  const res=await fetch(API_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify(payload)
+  });
+  const j=await res.json();
+  if(j.status==="success"){
+    alert("✅ Data tersimpan");
+    location.reload();
+  }else{
+    alert("❌ "+j.message);
+  }
+}
+</script>
+</body>
+</html>
