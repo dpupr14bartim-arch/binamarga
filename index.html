@@ -8,74 +8,75 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
 <style>
-/* ===================== GLOBAL ===================== */
+/* ===== BASIC ===== */
 body{
   margin:0;
-  font-family:Segoe UI, sans-serif;
   background:#020216;
   color:#e0f7ff;
+  font-family:Segoe UI, sans-serif;
 }
 
-/* ===================== HEADER ===================== */
+/* ===== HEADER (MODEL VERVAL PJU TS) ===== */
 header{
+  padding:16px;
   background:#000814;
   border-bottom:3px solid #f4b400;
 }
 .header-inner{
   max-width:1200px;
   margin:auto;
-  padding:14px 18px;
   display:flex;
   align-items:center;
   justify-content:space-between;
 }
-header img{
-  height:56px;
-}
-header .title{
+.logo{height:56px}
+.title{
   text-align:center;
+  flex:1;
 }
-header h1{
+.title h1{
   margin:0;
   font-size:1.5rem;
 }
-header small{
+.title small{
   color:#ffe08a;
 }
 
-/* ===================== FILTER ===================== */
-.filter{
+/* ===== CONTAINER ===== */
+.container{
   max-width:1200px;
-  margin:12px auto;
-  padding:0 15px;
+  margin:auto;
+  padding:14px;
 }
+
+/* ===== FILTER ===== */
 select{
   width:100%;
   padding:10px;
   border-radius:8px;
   border:none;
-  background:#071427;
-  color:#e0f7ff;
   font-size:15px;
+  background:#071a33;
+  color:#fff;
+  margin-bottom:10px;
 }
 
-/* ===================== MAP ===================== */
+/* ===== MAP ===== */
 #map{
   height:65vh;
-  margin:0 15px;
-  border-radius:12px;
-  box-shadow:0 0 20px rgba(0,0,0,.6);
+  border-radius:14px;
+  box-shadow:0 0 18px #000;
 }
 
-/* ===================== PANEL DETAIL ===================== */
+/* ===== PANEL INFO ===== */
 #panel{
   position:absolute;
-  top:110px;
-  right:25px;
+  top:100px;
+  right:20px;
   width:340px;
   background:#071427;
-  padding:14px;
   border-radius:14px;
+  padding:12px;
   box-shadow:0 0 25px rgba(0,0,0,.8);
   display:none;
   z-index:999;
@@ -84,43 +85,10 @@ select{
   width:100%;
   border-radius:10px;
   border:2px solid #f4b400;
-  margin-bottom:8px;
+  margin-bottom:6px;
 }
-label{
-  font-size:12px;
-  color:#9ecbff;
-}
-input,select,button{
-  width:100%;
-  margin-top:6px;
-  padding:9px;
-  border-radius:8px;
-  border:none;
-}
-button{
-  background:#f4b400;
-  font-weight:bold;
-  cursor:pointer;
-}
-.actions{
-  display:flex;
-  gap:6px;
-}
-
-/* ===================== ADD BUTTON ===================== */
-#btnAdd{
-  position:fixed;
-  bottom:25px;
-  right:25px;
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  border:none;
-  background:#f4b400;
-  font-size:28px;
-  font-weight:bold;
-  cursor:pointer;
-}
+.label{font-size:12px;color:#9ecbff}
+.value{font-weight:bold;margin-bottom:4px}
 </style>
 </head>
 
@@ -128,18 +96,19 @@ button{
 
 <header>
   <div class="header-inner">
-    <img src="bartim.png">
+    <img src="bartim.png" class="logo">
     <div class="title">
       <h1>Sistem Informasi Jembatan</h1>
       <small>Dinas PUPR Kabupaten Barito Timur</small>
     </div>
-    <img src="logopupr.png">
+    <img src="logopupr.png" class="logo">
   </div>
 </header>
 
-<div class="filter">
+<div class="container">
   <select id="filterKec">
-    <option value="">— Pilih Kecamatan —</option>
+    <option value="">— PILIH KECAMATAN —</option>
+    <option value="ALL">SEMUA KECAMATAN</option>
     <option>Dusun Timur</option>
     <option>Awang</option>
     <option>Dusun Tengah</option>
@@ -151,40 +120,37 @@ button{
     <option>Karusen Janang</option>
     <option>Benua Lima</option>
   </select>
+
+  <div id="map"></div>
 </div>
 
-<div id="map"></div>
-
-<!-- PANEL DETAIL / EDIT -->
+<!-- PANEL INFO -->
 <div id="panel">
   <img id="foto">
-  <label>No Jembatan</label><input id="no_jembatan">
-  <label>Nama Jembatan</label><input id="nama_jembatan">
-  <label>Jenis Konstruksi</label><input id="jenis_konstruksi">
-  <label>Ruas Jalan</label><input id="ruas_jalan">
-  <label>Kecamatan</label>
-  <select id="kecamatan">
-    <option>Dusun Timur</option><option>Awang</option>
-    <option>Dusun Tengah</option><option>Patangkep Tutui</option>
-    <option>Pematang Karau</option><option>Paju Epat</option>
-    <option>Raren Batuah</option><option>Paku</option>
-    <option>Karusen Janang</option><option>Benua Lima</option>
-  </select>
-  <label>Desa / Kelurahan</label><input id="desa">
-  <label>Latitude</label><input id="lat">
-  <label>Longitude</label><input id="lng">
-  <label>Panjang (m)</label><input id="panjang">
-  <label>Lebar (m)</label><input id="lebar">
-  <label>Jumlah Bentang</label><input id="jumlah_bentang">
-  <label>Kondisi</label><input id="kondisi">
-  <input type="file" id="fotoFile" accept="image/*">
-  <div class="actions">
-    <button onclick="ambilGPS()">📍 GPS</button>
-    <button onclick="simpan()">💾 Simpan</button>
-  </div>
-</div>
+  <div class="label">Nomor Jembatan</div>
+  <div class="value" id="no"></div>
 
-<button id="btnAdd" onclick="tambah()">＋</button>
+  <div class="label">Nama Jembatan</div>
+  <div class="value" id="nama"></div>
+
+  <div class="label">Kecamatan</div>
+  <div class="value" id="kec"></div>
+
+  <div class="label">Desa</div>
+  <div class="value" id="desa"></div>
+
+  <div class="label">Ruas Jalan</div>
+  <div class="value" id="ruas"></div>
+
+  <div class="label">Panjang / Lebar (m)</div>
+  <div class="value" id="ukuran"></div>
+
+  <div class="label">Kondisi</div>
+  <div class="value" id="kondisi"></div>
+
+  <div class="label">Koordinat</div>
+  <div class="value" id="koord"></div>
+</div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
@@ -192,7 +158,7 @@ button{
 const API_URL = "PASTE_URL_GAS_EXEC_DI_SINI";
 
 /* ================= MAP ================= */
-const map = L.map("map").setView([-2.1,115.2],9);
+const map = L.map("map").setView([-2.13,115.10],9);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 const layer = L.layerGroup().addTo(map);
 
@@ -202,98 +168,59 @@ const icon = L.icon({
   iconAnchor:[18,36]
 });
 
-/* ================= STATE ================= */
-let currentRow = null;
-let fotoLama = "";
+/* ================= DOM ================= */
+const filterKec = document.getElementById("filterKec");
+const panel = document.getElementById("panel");
 
-/* ================= LOAD ================= */
+const foto = document.getElementById("foto");
+const no = document.getElementById("no");
+const nama = document.getElementById("nama");
+const kec = document.getElementById("kec");
+const desa = document.getElementById("desa");
+const ruas = document.getElementById("ruas");
+const ukuran = document.getElementById("ukuran");
+const kondisi = document.getElementById("kondisi");
+const koord = document.getElementById("koord");
+
+/* ================= LOAD PER KECAMATAN ================= */
 filterKec.onchange = loadData;
 
 async function loadData(){
+  const k = filterKec.value;
   layer.clearLayers();
   panel.style.display="none";
-  if(!filterKec.value) return;
 
-  const res = await fetch(API_URL+"?kecamatan="+encodeURIComponent(filterKec.value));
-  const j = await res.json();
+  if(!k) return; // map tetap kosong
 
-  j.data.forEach(d=>{
-    if(isNaN(d.lat)||isNaN(d.lng)) return;
-    const m = L.marker([d.lat,d.lng],{icon}).addTo(layer);
-    m.on("click",()=>edit(d));
-  });
-}
+  const res = await fetch(API_URL + "?kecamatan=" + encodeURIComponent(k));
+  const json = await res.json();
 
-/* ================= EDIT ================= */
-function edit(d){
-  panel.style.display="block";
-  currentRow = d.rowIndex;
-  fotoLama = d.foto || "";
-  foto.src = d.foto || "https://via.placeholder.com/300x180";
-  no_jembatan.value=d.no_jembatan||"";
-  nama_jembatan.value=d.nama_jembatan||"";
-  jenis_konstruksi.value=d.jenis_konstruksi||"";
-  ruas_jalan.value=d.ruas_jalan||"";
-  kecamatan.value=d.kecamatan||"";
-  desa.value=d.desa_kelurahan||"";
-  lat.value=d.lat||"";
-  lng.value=d.lng||"";
-  panjang.value=d.panjang||"";
-  lebar.value=d.lebar||"";
-  jumlah_bentang.value=d.jumlah_bentang||"";
-  kondisi.value=d.kondisi||"";
-}
-
-/* ================= ADD ================= */
-function tambah(){
-  panel.style.display="block";
-  currentRow=null; fotoLama="";
-  document.querySelectorAll("#panel input").forEach(i=>i.value="");
-  foto.src="https://via.placeholder.com/300x180";
-}
-
-/* ================= GPS ================= */
-function ambilGPS(){
-  navigator.geolocation.getCurrentPosition(p=>{
-    lat.value=p.coords.latitude.toFixed(6);
-    lng.value=p.coords.longitude.toFixed(6);
-  });
-}
-
-/* ================= SAVE ================= */
-async function simpan(){
-  let base64="";
-  if(fotoFile.files[0]){
-    const fr=new FileReader();
-    base64=await new Promise(r=>{
-      fr.onload=()=>r(fr.result);
-      fr.readAsDataURL(fotoFile.files[0]);
-    });
+  if(json.status!=="success"){
+    alert(json.message);
+    return;
   }
 
-  await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      rowIndex:currentRow,
-      no_jembatan:no_jembatan.value,
-      nama_jembatan:nama_jembatan.value,
-      jenis_konstruksi:jenis_konstruksi.value,
-      ruas_jalan:ruas_jalan.value,
-      kecamatan:kecamatan.value,
-      desa_kelurahan:desa.value,
-      lat:lat.value,
-      lng:lng.value,
-      panjang:panjang.value,
-      lebar:lebar.value,
-      jumlah_bentang:jumlah_bentang.value,
-      kondisi:kondisi.value,
-      fotoBase64:base64,
-      foto_lama:fotoLama
-    })
+  json.data.forEach(d=>{
+    if(isNaN(d.lat) || isNaN(d.lng)) return;
+
+    const m = L.marker([d.lat,d.lng],{icon}).addTo(layer);
+    m.on("click",()=>showInfo(d));
   });
-  alert("✔ Data tersimpan");
-  panel.style.display="none";
-  loadData();
+}
+
+/* ================= PANEL INFO ================= */
+function showInfo(d){
+  foto.src = d.foto || "https://via.placeholder.com/300x180";
+  no.innerText = d.no_jembatan || "-";
+  nama.innerText = d.nama_jembatan || "-";
+  kec.innerText = d.kecamatan || "-";
+  desa.innerText = d.desa_kelurahan || "-";
+  ruas.innerText = d.ruas_jalan || "-";
+  ukuran.innerText = `${d.panjang||"-"} m × ${d.lebar||"-"} m`;
+  kondisi.innerText = d.kondisi || "-";
+  koord.innerText = d.lat.toFixed(6)+", "+d.lng.toFixed(6);
+
+  panel.style.display="block";
 }
 </script>
 
