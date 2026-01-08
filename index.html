@@ -633,6 +633,8 @@ const filterKec = document.getElementById("filterKec");
 const panel = document.getElementById("panel");
 const editPanel = document.getElementById("editPanel"); // ← TAMBAH INI
 let activeRowIndex = null;
+let currentRowIndex = null;
+
 
 const foto = document.getElementById("foto");
 const no = document.getElementById("no");
@@ -806,7 +808,9 @@ function tutupPanel(e){
   panel.style.display = "none";
 }
 
-document.getElementById("tahunFooter").innerText = new Date().getFullYear();
+const tf = document.getElementById("tahunFooter");
+if (tf) tf.innerText = new Date().getFullYear();
+
 
 let currentRowIndex = null;
 
