@@ -326,25 +326,8 @@ tr.active{
 .leaflet-tooltip{
   pointer-events:none; /* klik tetap ke marker */
 }
-/* ===== EDIT PANEL ===== */
-.edit-panel{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.65);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:2000;
-}
 
-.edit-panel > div{
-  background:#071a33;
-  width:360px;
-  max-height:90vh;
-  overflow:auto;
-  border-radius:14px;
-  padding:14px;
-}
+
 
 .edit-header{
   display:flex;
@@ -380,6 +363,38 @@ tr.active{
   border-radius:8px;
   font-weight:700;
   cursor:pointer;
+}
+/* ===== PANEL 2 MODE (VIEW / EDIT) ===== */
+.view-only{display:block}
+.edit-only{display:none}
+
+.edit-mode .view-only{display:none}
+.edit-mode .edit-only{display:block}
+
+/* tombol edit */
+.btn-edit{
+  width:100%;
+  margin:10px 0;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#f4b400;
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* form edit */
+.edit-body{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.edit-body .full{grid-column:1/-1}
+.edit-body .row{display:flex;gap:6px}
+
+/* mobile */
+@media(max-width:768px){
+  .edit-body{grid-template-columns:1fr}
 }
 
 </style>
@@ -451,158 +466,91 @@ tr.active{
   </div>
 </div>
 
-<!-- PANEL INFO -->
-<div id="panel">
+<!-- ===== PANEL (VIEW + EDIT) ===== -->
+<div id="panel" class="panel view-mode">
 
-  <div class="panel-header">
-    <div class="panel-title">Informasi Jembatan</div>
-    <button class="panel-close"
-        type="button"
-        onclick="tutupPanel(event)">
-  ✕
-</button>
+  <!-- ================= VIEW MODE ================= -->
+  <div class="view-only">
 
-  </div>
-
-  <img id="foto">
-<button
-  onclick="mintaEdit()"
-  style="
-    width:100%;
-    margin-bottom:12px;
-    padding:10px;
-    border:none;
-    border-radius:8px;
-    background:#f4b400;
-    color:#000;
-    font-weight:700;
-    cursor:pointer;
-  ">
-  ✏️ Edit Data Jembatan
-</button>
-
-  <div class="info-block">
-    <div class="label">Nomor Jembatan</div>
-    <div class="value" id="no"></div>
-  </div>
-
-  <div class="info-block">
-    <div class="label">Nama Jembatan</div>
-    <div class="value" id="nama"></div>
-  </div>
-
-  <div class="info-block">
-    <div class="label">Kecamatan</div>
-    <div class="value" id="kec"></div>
-  </div>
-
-  <div class="info-block">
-    <div class="label">Desa / Kelurahan</div>
-    <div class="value" id="desa"></div>
-  </div>
-
-  <div class="info-block">
-    <div class="label">Ruas Jalan</div>
-    <div class="value" id="ruas"></div>
-  </div>
-<div class="info-block">
-  <div class="label">Jenis Konstruksi</div>
-  <div class="value" id="konstruksi"></div>
-</div>
-
-  <div class="info-block">
-    <div class="label">Panjang × Lebar (m)</div>
-    <div class="value" id="ukuran"></div>
-  </div>
-
-  <div class="info-block">
-    <div class="label">Jumlah Bentang</div>
-    <div class="value" id="bentang"></div>
-  </div>
-
-  <div class="info-block">
-    <div class="label">Tipe Bangunan Atas</div>
-    <div class="value" id="atas"></div>
-  </div>
-
-  <div class="info-block">
-    <div class="label">Tipe Bangunan Bawah</div>
-    <div class="value" id="bawah"></div>
-  </div>
-
-  <div class="info-block">
-    <div class="label">Tipe Pondasi</div>
-    <div class="value" id="pondasi"></div>
-  </div>
-
-  <div class="info-block">
-    <div class="label">Tipe Lantai</div>
-    <div class="value" id="lantai"></div>
-  </div>
-
-  <div class="info-block">
-    <div class="label">Kondisi</div>
-    <div class="value" id="kondisi"></div>
-  </div>
-
-  <div class="info-block">
-  <div class="label">Koordinat</div>
-  <div class="value">
-    <a id="koord"
-       href="#"
-       target="_blank"
-       style="color:#4dd0ff;text-decoration:none">
-      -
-    </a>
-  </div>
-</div>
-
-
-</div>
-<!-- ===== PANEL EDIT JEMBATAN ===== -->
-<div id="editPanel" class="edit-panel">
-
-  <div class="edit-header">
-    <div>Edit Data Jembatan</div>
-    <button onclick="tutupEdit()">✕</button>
-  </div>
-
-  <div class="edit-body">
-    <input id="f_no" placeholder="Nomor Jembatan">
-    <input id="f_nama" placeholder="Nama Jembatan">
-    <input id="f_konstruksi" placeholder="Jenis Konstruksi">
-    <input id="f_ruas" placeholder="Ruas Jalan">
-    <input id="f_kecamatan" placeholder="Kecamatan">
-    <input id="f_desa" placeholder="Desa / Kelurahan">
-
-    <div class="row">
-      <input id="f_lat" placeholder="Latitude">
-      <input id="f_lng" placeholder="Longitude">
-      <button onclick="ambilLokasi()">📍</button>
+    <div class="panel-header">
+      <div class="panel-title">Informasi Jembatan</div>
+      <button class="panel-close" onclick="tutupPanel(event)">✕</button>
     </div>
 
-    <div class="row">
+    <img id="foto">
+
+    <button class="btn-edit" onclick="mintaEdit()">✏️ Edit Data Jembatan</button>
+
+    <div class="info-block"><div class="label">Nomor</div><div class="value" id="no"></div></div>
+    <div class="info-block"><div class="label">Nama</div><div class="value" id="nama"></div></div>
+    <div class="info-block"><div class="label">Kecamatan</div><div class="value" id="kec"></div></div>
+    <div class="info-block"><div class="label">Desa</div><div class="value" id="desa"></div></div>
+    <div class="info-block"><div class="label">Ruas</div><div class="value" id="ruas"></div></div>
+    <div class="info-block"><div class="label">Konstruksi</div><div class="value" id="konstruksi"></div></div>
+    <div class="info-block"><div class="label">Ukuran</div><div class="value" id="ukuran"></div></div>
+    <div class="info-block"><div class="label">Bentang</div><div class="value" id="bentang"></div></div>
+    <div class="info-block"><div class="label">Atas</div><div class="value" id="atas"></div></div>
+    <div class="info-block"><div class="label">Bawah</div><div class="value" id="bawah"></div></div>
+    <div class="info-block"><div class="label">Pondasi</div><div class="value" id="pondasi"></div></div>
+    <div class="info-block"><div class="label">Lantai</div><div class="value" id="lantai"></div></div>
+    <div class="info-block"><div class="label">Kondisi</div><div class="value" id="kondisi"></div></div>
+
+    <div class="info-block">
+      <div class="label">Koordinat</div>
+      <div class="value">
+        <a id="koord" target="_blank" style="color:#4dd0ff">-</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= EDIT MODE ================= -->
+  <div class="edit-only">
+
+    <div class="panel-header">
+      <div class="panel-title">Edit Data Jembatan</div>
+      <button onclick="batalEdit()">✕</button>
+    </div>
+
+    <div class="edit-body">
+      <input id="f_no" class="full" placeholder="Nomor Jembatan">
+      <input id="f_nama" class="full" placeholder="Nama Jembatan">
+
+      <input id="f_konstruksi" placeholder="Jenis Konstruksi">
+      <input id="f_ruas" placeholder="Ruas Jalan">
+
+      <input id="f_kecamatan" placeholder="Kecamatan">
+      <input id="f_desa" placeholder="Desa / Kelurahan">
+
+      <div class="row full">
+        <input id="f_lat" placeholder="Latitude">
+        <input id="f_lng" placeholder="Longitude">
+        <button onclick="ambilLokasi()">📍</button>
+      </div>
+
       <input id="f_panjang" placeholder="Panjang (m)">
       <input id="f_lebar" placeholder="Lebar (m)">
+      <input id="f_bentang" placeholder="Jumlah Bentang">
+
+      <input id="f_atas" placeholder="Bangunan Atas">
+      <input id="f_bawah" placeholder="Bangunan Bawah">
+      <input id="f_pondasi" placeholder="Tipe Pondasi">
+      <input id="f_lantai" placeholder="Tipe Lantai">
+      <input id="f_kondisi" class="full" placeholder="Kondisi">
+
+      <label class="full">Foto Jembatan</label>
+      <input type="file" id="f_foto" class="full" accept="image/*">
     </div>
 
-    <input id="f_bentang" placeholder="Jumlah Bentang">
-    <input id="f_atas" placeholder="Bangunan Atas">
-    <input id="f_bawah" placeholder="Bangunan Bawah">
-    <input id="f_pondasi" placeholder="Tipe Pondasi">
-    <input id="f_lantai" placeholder="Tipe Lantai">
-    <input id="f_kondisi" placeholder="Kondisi">
+    <div class="edit-footer">
+      <button onclick="simpanData()">💾 Simpan</button>
+      <button onclick="batalEdit()">Batal</button>
+    </div>
 
-    <label>Foto Jembatan</label>
-    <input type="file" id="f_foto" accept="image/*">
-  </div>
-
-  <div class="edit-footer">
-    <button onclick="simpanData()">💾 Simpan</button>
-    <button onclick="tutupEdit()">Batal</button>
   </div>
 
 </div>
+
 
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -631,7 +579,6 @@ const icon = L.divIcon({
 /* ================= DOM ================= */
 const filterKec = document.getElementById("filterKec");
 const panel = document.getElementById("panel");
-const editPanel = document.getElementById("editPanel"); // ← TAMBAH INI
 let activeRowIndex = null;
 let currentRowIndex = null;
 
@@ -835,22 +782,35 @@ async function verifikasiPin(pin){
 }
 
 function bukaEdit(){
+  // 🔴 WAJIB – ini yang tadi hilang
   currentRowIndex = activeRowIndex;
-  editPanel.style.display="flex";
 
+  // ganti mode panel
+  panel.classList.add("edit-mode");
+
+  // isi form dari view
   f_no.value = no.innerText;
   f_nama.value = nama.innerText;
   f_konstruksi.value = konstruksi.innerText;
   f_ruas.value = ruas.innerText;
   f_kecamatan.value = kec.innerText;
   f_desa.value = desa.innerText;
-  f_lat.value = koord.innerText.split(",")[0];
-  f_lng.value = koord.innerText.split(",")[1];
+
+  // koordinat
+  if(koord.innerText.includes(",")){
+    f_lat.value = koord.innerText.split(",")[0].trim();
+    f_lng.value = koord.innerText.split(",")[1].trim();
+  }else{
+    f_lat.value = "";
+    f_lng.value = "";
+  }
 }
 
-function tutupEdit(){
-  editPanel.style.display="none";
+
+function batalEdit(){
+  panel.classList.remove("edit-mode");
 }
+
 
 function ambilLokasi(){
   navigator.geolocation.getCurrentPosition(p=>{
@@ -899,7 +859,7 @@ async function simpanData(){
 
 
   alert("✔ Data tersimpan");
-  tutupEdit();
+  batalEdit();
   loadData();
 }
 
