@@ -322,6 +322,10 @@ select{
     <div class="label">Ruas Jalan</div>
     <div class="value" id="ruas"></div>
   </div>
+<div class="info-block">
+  <div class="label">Jenis Konstruksi</div>
+  <div class="value" id="konstruksi"></div>
+</div>
 
   <div class="info-block">
     <div class="label">Panjang × Lebar (m)</div>
@@ -407,6 +411,7 @@ const nama = document.getElementById("nama");
 const kec = document.getElementById("kec");
 const desa = document.getElementById("desa");
 const ruas = document.getElementById("ruas");
+const konstruksi = document.getElementById("konstruksi");
 const ukuran = document.getElementById("ukuran");
 const kondisi = document.getElementById("kondisi");
 const koord = document.getElementById("koord");
@@ -451,9 +456,11 @@ function showInfo(d){
   foto.src = d.foto || "https://via.placeholder.com/300x180";
   no.innerText = d.no_jembatan || "-";
   nama.innerText = d.nama_jembatan || "-";
+  konstruksi.innerText = d.jenis_konstruksi || "-";
   kec.innerText = d.kecamatan || "-";
   desa.innerText = d.desa_kelurahan || "-";
   ruas.innerText = d.ruas_jalan || "-";
+  
 
   ukuran.innerText = `${d.panjang || "-"} m × ${d.lebar || "-"} m`;
   bentang.innerText = d.jumlah_bentang || "-";
