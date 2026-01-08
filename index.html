@@ -326,6 +326,61 @@ tr.active{
 .leaflet-tooltip{
   pointer-events:none; /* klik tetap ke marker */
 }
+/* ===== EDIT PANEL ===== */
+.edit-panel{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
+}
+
+.edit-panel > div{
+  background:#071a33;
+  width:360px;
+  max-height:90vh;
+  overflow:auto;
+  border-radius:14px;
+  padding:14px;
+}
+
+.edit-header{
+  display:flex;
+  justify-content:space-between;
+  font-weight:700;
+  color:#ffe08a;
+  margin-bottom:10px;
+}
+
+.edit-body input{
+  width:100%;
+  margin-bottom:6px;
+  padding:8px;
+  border:none;
+  border-radius:6px;
+}
+
+.edit-body .row{
+  display:flex;
+  gap:6px;
+}
+
+.edit-footer{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.edit-footer button{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  font-weight:700;
+  cursor:pointer;
+}
 
 </style>
 </head>
@@ -487,6 +542,50 @@ tr.active{
   </div>
 </div>
 
+
+</div>
+<!-- ===== PANEL EDIT JEMBATAN ===== -->
+<div id="editPanel" class="edit-panel">
+
+  <div class="edit-header">
+    <div>Edit Data Jembatan</div>
+    <button onclick="tutupEdit()">✕</button>
+  </div>
+
+  <div class="edit-body">
+    <input id="f_no" placeholder="Nomor Jembatan">
+    <input id="f_nama" placeholder="Nama Jembatan">
+    <input id="f_konstruksi" placeholder="Jenis Konstruksi">
+    <input id="f_ruas" placeholder="Ruas Jalan">
+    <input id="f_kecamatan" placeholder="Kecamatan">
+    <input id="f_desa" placeholder="Desa / Kelurahan">
+
+    <div class="row">
+      <input id="f_lat" placeholder="Latitude">
+      <input id="f_lng" placeholder="Longitude">
+      <button onclick="ambilLokasi()">📍</button>
+    </div>
+
+    <div class="row">
+      <input id="f_panjang" placeholder="Panjang (m)">
+      <input id="f_lebar" placeholder="Lebar (m)">
+    </div>
+
+    <input id="f_bentang" placeholder="Jumlah Bentang">
+    <input id="f_atas" placeholder="Bangunan Atas">
+    <input id="f_bawah" placeholder="Bangunan Bawah">
+    <input id="f_pondasi" placeholder="Tipe Pondasi">
+    <input id="f_lantai" placeholder="Tipe Lantai">
+    <input id="f_kondisi" placeholder="Kondisi">
+
+    <label>Foto Jembatan</label>
+    <input type="file" id="f_foto" accept="image/*">
+  </div>
+
+  <div class="edit-footer">
+    <button onclick="simpanData()">💾 Simpan</button>
+    <button onclick="tutupEdit()">Batal</button>
+  </div>
 
 </div>
 
@@ -776,6 +875,93 @@ async function simpanData(){
 
   alert("✔ Data tersimpan");
   editPanel.style.display="none";
+  loadData();
+}
+let currentRowIndex = null;
+
+/* ==== TOMBOL EDIT DARI PANEL INFO ==== */
+function mintaEdit(){
+  const pin = prompt("Masukkan PIN Edit:");
+  if(!pin) return;
+  verifikasiPin(pin);
+}
+
+async function verifikasiPin(pin){
+  const r = await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({action:"pin", pin})
+  });
+  const j = await r.json();
+  if(j.status!=="ok"){
+    alert("PIN salah");
+    return;
+  }
+  bukaEdit();
+}
+
+function bukaEdit(){
+  currentRowIndex = activeRowIndex;
+  editPanel.style.display="flex";
+
+  f_no.value = no.innerText;
+  f_nama.value = nama.innerText;
+  f_konstruksi.value = konstruksi.innerText;
+  f_ruas.value = ruas.innerText;
+  f_kecamatan.value = kec.innerText;
+  f_desa.value = desa.innerText;
+  f_lat.value = koord.innerText.split(",")[0];
+  f_lng.value = koord.innerText.split(",")[1];
+}
+
+function tutupEdit(){
+  editPanel.style.display="none";
+}
+
+function ambilLokasi(){
+  navigator.geolocation.getCurrentPosition(p=>{
+    f_lat.value = p.coords.latitude.toFixed(6);
+    f_lng.value = p.coords.longitude.toFixed(6);
+  });
+}
+
+async function simpanData(){
+  let fotoBase64="";
+  const f = f_foto.files[0];
+  if(f){
+    fotoBase64 = await new Promise(r=>{
+      const fr=new FileReader();
+      fr.onload=()=>r(fr.result);
+      fr.readAsDataURL(f);
+    });
+  }
+
+  await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"simpan",
+      rowIndex:currentRowIndex,
+      no_jembatan:f_no.value,
+      nama_jembatan:f_nama.value,
+      jenis_konstruksi:f_konstruksi.value,
+      ruas_jalan:f_ruas.value,
+      kecamatan:f_kecamatan.value,
+      desa_kelurahan:f_desa.value,
+      lat:f_lat.value,
+      lng:f_lng.value,
+      panjang:f_panjang.value,
+      lebar:f_lebar.value,
+      jumlah_bentang:f_bentang.value,
+      tipe_bangunan_atas:f_atas.value,
+      tipe_bangunan_bawah:f_bawah.value,
+      tipe_pondasi:f_pondasi.value,
+      tipe_lantai:f_lantai.value,
+      kondisi:f_kondisi.value,
+      fotoBase64
+    })
+  });
+
+  alert("✔ Data tersimpan");
+  tutupEdit();
   loadData();
 }
 
