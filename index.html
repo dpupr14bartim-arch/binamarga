@@ -616,6 +616,8 @@ const icon = L.divIcon({
 /* ================= DOM ================= */
 const filterKec = document.getElementById("filterKec");
 const panel = document.getElementById("panel");
+const editPanel = document.getElementById("editPanel"); // ← TAMBAH INI
+let activeRowIndex = null;
 
 const foto = document.getElementById("foto");
 const no = document.getElementById("no");
@@ -632,6 +634,28 @@ const atas = document.getElementById("atas");
 const bawah = document.getElementById("bawah");
 const pondasi = document.getElementById("pondasi");
 const lantai = document.getElementById("lantai");
+  
+/* ===== DOM FORM EDIT ===== */
+const f_no = document.getElementById("f_no");
+const f_nama = document.getElementById("f_nama");
+const f_konstruksi = document.getElementById("f_konstruksi");
+const f_ruas = document.getElementById("f_ruas");
+const f_kecamatan = document.getElementById("f_kecamatan");
+const f_desa = document.getElementById("f_desa");
+
+const f_lat = document.getElementById("f_lat");
+const f_lng = document.getElementById("f_lng");
+const f_panjang = document.getElementById("f_panjang");
+const f_lebar = document.getElementById("f_lebar");
+const f_bentang = document.getElementById("f_bentang");
+
+const f_atas = document.getElementById("f_atas");
+const f_bawah = document.getElementById("f_bawah");
+const f_pondasi = document.getElementById("f_pondasi");
+const f_lantai = document.getElementById("f_lantai");
+const f_kondisi = document.getElementById("f_kondisi");
+
+const f_foto = document.getElementById("f_foto");
 
 
 /* ================= LOAD PER KECAMATAN ================= */
@@ -728,6 +752,8 @@ async function loadData(){
 
 /* ================= PANEL INFO ================= */
 function showInfo(d){
+  activeRowIndex = d.rowIndex;   // ← WAJIB, BARIS PERTAMA
+
   const lat = Number(d.lat).toFixed(6);
   const lng = Number(d.lng).toFixed(6);
 
@@ -766,117 +792,7 @@ function tutupPanel(e){
 }
 
 document.getElementById("tahunFooter").innerText = new Date().getFullYear();
-let currentRowIndex = null;
-let fotoLama = "";
 
-function mintaEdit(){
-  const pin = prompt("Masukkan PIN Edit:");
-  if(!pin) return;
-  verifikasiPin(pin, "edit");
-}
-
-function mintaTambah(){
-  const pin = prompt("Masukkan PIN Edit:");
-  if(!pin) return;
-  verifikasiPin(pin, "tambah");
-}
-
-async function verifikasiPin(pin, mode){
-  const res = await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({action:"cek_pin", pin})
-  });
-  const j = await res.json();
-  if(j.status!=="ok"){
-    alert("❌ PIN salah");
-    return;
-  }
-
-  if(mode==="edit") bukaEditDariPanel();
-  if(mode==="tambah") bukaTambah();
-}
-async function cekPin(){
-  const r = await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"pin",
-      pin: document.getElementById("pinEdit").value
-    })
-  });
-  const j = await r.json();
-  return j.status === "ok";
-}
-
-function bukaEditDariPanel(){
-  currentRowIndex = activeRowIndex;
-  editPanel.style.display="flex";
-
-  f_no.value = no.innerText;
-  f_nama.value = nama.innerText;
-  f_konstruksi.value = konstruksi.innerText;
-  f_ruas.value = ruas.innerText;
-  f_desa.value = desa.innerText;
-  f_kecamatan.value = kec.innerText;
-  f_lat.value = koord.innerText.split(",")[0];
-  f_lng.value = koord.innerText.split(",")[1];
-}
-
-function bukaTambah(){
-  currentRowIndex = null;
-  editPanel.style.display="flex";
-  document.querySelectorAll("#editPanel input").forEach(i=>i.value="");
-}
-
-function tutupEdit(){
-  editPanel.style.display="none";
-}
-
-function ambilLokasi(){
-  navigator.geolocation.getCurrentPosition(p=>{
-    f_lat.value = p.coords.latitude.toFixed(6);
-    f_lng.value = p.coords.longitude.toFixed(6);
-  });
-}
-
-async function simpanData(){
-  let fotoBase64="";
-  const f=f_foto.files[0];
-  if(f){
-    fotoBase64 = await new Promise(r=>{
-      const fr=new FileReader();
-      fr.onload=()=>r(fr.result);
-      fr.readAsDataURL(f);
-    });
-  }
-
-  await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      rowIndex: currentRowIndex,
-      no_jembatan:f_no.value,
-      nama_jembatan:f_nama.value,
-      jenis_konstruksi:f_konstruksi.value,
-      ruas_jalan:f_ruas.value,
-      desa_kelurahan:f_desa.value,
-      kecamatan:f_kecamatan.value,
-      lat:f_lat.value,
-      lng:f_lng.value,
-      panjang:f_panjang.value,
-      lebar:f_lebar.value,
-      jumlah_bentang:f_bentang.value,
-      tipe_bangunan_atas:f_atas.value,
-      tipe_bangunan_bawah:f_bawah.value,
-      tipe_pondasi:f_pondasi.value,
-      tipe_lantai:f_lantai.value,
-      kondisi:f_kondisi.value,
-      fotoBase64
-    })
-  });
-
-  alert("✔ Data tersimpan");
-  editPanel.style.display="none";
-  loadData();
-}
 let currentRowIndex = null;
 
 /* ==== TOMBOL EDIT DARI PANEL INFO ==== */
@@ -935,30 +851,33 @@ async function simpanData(){
     });
   }
 
-  await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"simpan",
-      rowIndex:currentRowIndex,
-      no_jembatan:f_no.value,
-      nama_jembatan:f_nama.value,
-      jenis_konstruksi:f_konstruksi.value,
-      ruas_jalan:f_ruas.value,
-      kecamatan:f_kecamatan.value,
-      desa_kelurahan:f_desa.value,
-      lat:f_lat.value,
-      lng:f_lng.value,
-      panjang:f_panjang.value,
-      lebar:f_lebar.value,
-      jumlah_bentang:f_bentang.value,
-      tipe_bangunan_atas:f_atas.value,
-      tipe_bangunan_bawah:f_bawah.value,
-      tipe_pondasi:f_pondasi.value,
-      tipe_lantai:f_lantai.value,
-      kondisi:f_kondisi.value,
-      fotoBase64
-    })
-  });
+ await fetch(API_URL,{
+  method:"POST",
+  body:JSON.stringify({
+    action:"simpan",
+    rowIndex:currentRowIndex,
+    no_jembatan:f_no.value,
+    nama_jembatan:f_nama.value,
+    jenis_konstruksi:f_konstruksi.value,
+    ruas_jalan:f_ruas.value,
+    kecamatan:f_kecamatan.value,
+    desa_kelurahan:f_desa.value,
+    lat:f_lat.value,
+    lng:f_lng.value,
+    panjang:f_panjang.value,
+    lebar:f_lebar.value,
+    jumlah_bentang:f_bentang.value,
+    tipe_bangunan_atas:f_atas.value,
+    tipe_bangunan_bawah:f_bawah.value,
+    tipe_pondasi:f_pondasi.value,
+    tipe_lantai:f_lantai.value,
+    kondisi:f_kondisi.value,
+    foto_lama: foto.src || "",
+    fotoBase64
+  })
+});
+
+
 
   alert("✔ Data tersimpan");
   tutupEdit();
