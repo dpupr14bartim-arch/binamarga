@@ -247,6 +247,69 @@ select{
     text-align:center;
   }
 }
+/* ===== TABEL SCROLL LENGKAP ===== */
+.box-table{
+  margin-top:16px;
+  background:#071427;
+  border-radius:14px;
+  padding:12px;
+  box-shadow:0 0 20px rgba(0,0,0,.6);
+}
+
+.table-title{
+  font-weight:700;
+  color:#ffe08a;
+  margin-bottom:10px;
+  letter-spacing:.5px;
+}
+
+.table-scroll{
+  max-height:45vh;          /* SCROLL ATAS-BAWAH */
+  overflow-y:auto;
+  overflow-x:auto;          /* SCROLL KIRI-KANAN */
+  border-radius:10px;
+}
+
+table{
+  width:max-content;        /* PENTING agar horizontal scroll aktif */
+  min-width:1600px;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th,td{
+  padding:8px 10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  white-space:nowrap;      /* supaya kolom tidak pecah */
+}
+
+th{
+  position:sticky;
+  top:0;
+  background:#0b2442;
+  color:#9ecbff;
+  font-weight:600;
+  z-index:2;
+}
+
+tr{
+  cursor:pointer;
+}
+
+tr:hover{
+  background:#12325c;
+}
+
+tr.active{
+  background:#1dd1a133 !important;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+  .table-scroll{
+    max-height:40vh;
+  }
+}
 
 </style>
 </head>
@@ -281,6 +344,40 @@ select{
   </select>
 
   <div id="map"></div>
+</div>
+<!-- ===== TABEL DATA JEMBATAN (LENGKAP) ===== -->
+<div class="container">
+  <div class="box-table">
+    <div class="table-title">📋 Data Jembatan (Lengkap)</div>
+
+    <div class="table-scroll">
+      <table id="tabelJembatan">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>No Jembatan</th>
+            <th>Nama Jembatan</th>
+            <th>Jenis Konstruksi</th>
+            <th>Ruas Jalan</th>
+            <th>Kecamatan</th>
+            <th>Desa / Kelurahan</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Panjang (m)</th>
+            <th>Lebar (m)</th>
+            <th>Jumlah Bentang</th>
+            <th>Bangunan Atas</th>
+            <th>Bangunan Bawah</th>
+            <th>Tipe Pondasi</th>
+            <th>Tipe Lantai</th>
+            <th>Kondisi</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+  </div>
 </div>
 
 <!-- PANEL INFO -->
@@ -425,27 +522,81 @@ const lantai = document.getElementById("lantai");
 /* ================= LOAD PER KECAMATAN ================= */
 filterKec.onchange = loadData;
 
+// simpan referensi marker & tabel
+const markerMap = {};
+const tableMap  = {};
+const tbody = document.querySelector("#tabelJembatan tbody");
+
 async function loadData(){
   const k = filterKec.value;
-  layer.clearLayers();
-  panel.style.display="none";
 
-  if(!k) return; // map tetap kosong
+  layer.clearLayers();
+  panel.style.display = "none";
+  tbody.innerHTML = "";
+
+  if(!k) return; // map & tabel kosong
 
   const res = await fetch(API_URL + "?kecamatan=" + encodeURIComponent(k));
   const json = await res.json();
 
-  if(json.status!=="success"){
+  if(json.status !== "success"){
     alert(json.message);
     return;
   }
 
-  json.data.forEach(d=>{
-    if(isNaN(d.lat) || isNaN(d.lng)) return;
+  json.data.forEach((d,i)=>{
+    /* ================= MARKER ================= */
+    if(!isNaN(d.lat) && !isNaN(d.lng)){
+      const m = L.marker([d.lat,d.lng],{icon}).addTo(layer);
+      markerMap[d.rowIndex] = m;
 
-    const m = L.marker([d.lat,d.lng],{icon}).addTo(layer);
-    m.on("click",()=>showInfo(d));
+      m.on("click",()=>{
+        showInfo(d);
+        highlightRow(d.rowIndex);
+      });
+    }
+
+    /* ================= TABEL ================= */
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td>${d.no_jembatan||"-"}</td>
+      <td>${d.nama_jembatan||"-"}</td>
+      <td>${d.jenis_konstruksi||"-"}</td>
+      <td>${d.ruas_jalan||"-"}</td>
+      <td>${d.kecamatan||"-"}</td>
+      <td>${d.desa_kelurahan||"-"}</td>
+      <td>${d.lat||"-"}</td>
+      <td>${d.lng||"-"}</td>
+      <td>${d.panjang||"-"}</td>
+      <td>${d.lebar||"-"}</td>
+      <td>${d.jumlah_bentang||"-"}</td>
+      <td>${d.tipe_bangunan_atas||"-"}</td>
+      <td>${d.tipe_bangunan_bawah||"-"}</td>
+      <td>${d.tipe_pondasi||"-"}</td>
+      <td>${d.tipe_lantai||"-"}</td>
+      <td>${d.kondisi||"-"}</td>
+    `;
+
+    tr.onclick = ()=>{
+      if(markerMap[d.rowIndex]){
+        map.setView(markerMap[d.rowIndex].getLatLng(),14);
+      }
+      showInfo(d);
+      highlightRow(d.rowIndex);
+    };
+
+    tbody.appendChild(tr);
+    tableMap[d.rowIndex] = tr;
   });
+}
+
+  function highlightRow(rowIndex){
+  Object.values(tableMap).forEach(tr=>tr.classList.remove("active"));
+  if(tableMap[rowIndex]){
+    tableMap[rowIndex].classList.add("active");
+    tableMap[rowIndex].scrollIntoView({behavior:"smooth",block:"center"});
+  }
 }
 
 /* ================= PANEL INFO ================= */
