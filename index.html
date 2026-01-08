@@ -180,6 +180,9 @@ select{
     padding-bottom:20px;
   }
 }
+#panel{
+  pointer-events:auto;
+}
 
 </style>
 </head>
@@ -221,7 +224,12 @@ select{
 
   <div class="panel-header">
     <div class="panel-title">Informasi Jembatan</div>
-    <button class="panel-close" onclick="tutupPanel()">✕</button>
+    <button class="panel-close"
+        type="button"
+        onclick="tutupPanel(event)">
+  ✕
+</button>
+
   </div>
 
   <img id="foto">
@@ -400,9 +408,14 @@ function showInfo(d){
   panel.style.display = "block";
 }
 
-function tutupPanel(){
+function tutupPanel(e){
+  if(e){
+    e.preventDefault();
+    e.stopPropagation(); // ⬅️ INI KUNCI
+  }
   panel.style.display = "none";
 }
+
 
 </script>
 
