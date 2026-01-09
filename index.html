@@ -581,7 +581,7 @@ const filterKec = document.getElementById("filterKec");
 const panel = document.getElementById("panel");
 let activeRowIndex = null;
 let currentRowIndex = null;
-
+let currentData = null; // ⬅️ TAMBAH INI
 
 const foto = document.getElementById("foto");
 const no = document.getElementById("no");
@@ -717,6 +717,7 @@ async function loadData(){
 /* ================= PANEL INFO ================= */
 function showInfo(d){
   activeRowIndex = d.rowIndex;   // ← WAJIB, BARIS PERTAMA
+  currentData = d; // ⬅️ INI KUNCI EDIT TIDAK KOSONG
 
   const lat = Number(d.lat).toFixed(6);
   const lng = Number(d.lng).toFixed(6);
