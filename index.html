@@ -782,28 +782,35 @@ async function verifikasiPin(pin){
 }
 
 function bukaEdit(){
-  // 🔴 WAJIB – ini yang tadi hilang
+  // index baris
   currentRowIndex = activeRowIndex;
 
-  // ganti mode panel
+  // mode edit
   panel.classList.add("edit-mode");
 
-  // isi form dari view
-  f_no.value = no.innerText;
-  f_nama.value = nama.innerText;
-  f_konstruksi.value = konstruksi.innerText;
-  f_ruas.value = ruas.innerText;
-  f_kecamatan.value = kec.innerText;
-  f_desa.value = desa.innerText;
+  const d = currentData;
+  if(!d) return;
 
-  // koordinat
-  if(koord.innerText.includes(",")){
-    f_lat.value = koord.innerText.split(",")[0].trim();
-    f_lng.value = koord.innerText.split(",")[1].trim();
-  }else{
-    f_lat.value = "";
-    f_lng.value = "";
-  }
+  // isi form LANGSUNG dari data
+  f_no.value = d.no_jembatan || "";
+  f_nama.value = d.nama_jembatan || "";
+  f_konstruksi.value = d.jenis_konstruksi || "";
+  f_ruas.value = d.ruas_jalan || "";
+  f_kecamatan.value = d.kecamatan || "";
+  f_desa.value = d.desa_kelurahan || "";
+
+  f_lat.value = d.lat || "";
+  f_lng.value = d.lng || "";
+
+  f_panjang.value = d.panjang || "";
+  f_lebar.value = d.lebar || "";
+  f_bentang.value = d.jumlah_bentang || "";
+
+  f_atas.value = d.tipe_bangunan_atas || "";
+  f_bawah.value = d.tipe_bangunan_bawah || "";
+  f_pondasi.value = d.tipe_pondasi || "";
+  f_lantai.value = d.tipe_lantai || "";
+  f_kondisi.value = d.kondisi || "";
 }
 
 
