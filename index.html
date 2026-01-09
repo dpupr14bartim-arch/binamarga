@@ -337,71 +337,112 @@ tr.active{
   margin-bottom:10px;
 }
 
-.edit-body input{
-  width:100%;
-  margin-bottom:6px;
-  padding:8px;
-  border:none;
-  border-radius:6px;
+/* ===== FORM EDIT ===== */
+.edit-body{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
 }
 
+/* field wrapper */
+.edit-body .field{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+/* full width */
+.edit-body .full{
+  grid-column:1 / -1;
+}
+
+/* label */
+.edit-body label{
+  font-size:11px;
+  color:#9ecbff;
+  letter-spacing:.4px;
+}
+
+/* input */
+.edit-body input{
+  padding:9px 10px;
+  background:#0b2442;
+  color:#ffffff;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:7px;
+  font-size:13px;
+}
+
+/* focus */
+.edit-body input:focus{
+  outline:none;
+  border-color:#f4b400;
+  box-shadow:0 0 0 1px rgba(244,180,0,.35);
+}
+
+/* koordinat row */
 .edit-body .row{
   display:flex;
   gap:6px;
 }
-.edit-body label{
-  font-size:11px;
-  color:#9ecbff;
-  margin-bottom:2px;
-  display:block;
+
+.edit-body .row input{
+  flex:1;
 }
 
+/* tombol ambil lokasi */
+.edit-body .row button{
+  width:38px;
+  border:none;
+  border-radius:7px;
+  background:#f4b400;
+  cursor:pointer;
+  font-size:16px;
+}
+
+/* ===== FOOTER EDIT ===== */
 .edit-footer{
   display:flex;
-  gap:10px;
-  margin-top:10px;
+  gap:12px;
+  margin-top:14px;
 }
 
 .edit-footer button{
   flex:1;
-  padding:10px;
+  padding:11px;
   border:none;
-  border-radius:8px;
+  border-radius:10px;
   font-weight:700;
+  font-size:14px;
   cursor:pointer;
 }
-/* ===== PANEL 2 MODE (VIEW / EDIT) ===== */
+
+/* ===== MODE VIEW / EDIT ===== */
 .view-only{display:block}
 .edit-only{display:none}
 
 .edit-mode .view-only{display:none}
 .edit-mode .edit-only{display:block}
 
-/* tombol edit */
+/* ===== TOMBOL EDIT ===== */
 .btn-edit{
   width:100%;
   margin:10px 0;
   padding:10px;
   border:none;
-  border-radius:8px;
+  border-radius:10px;
   background:#f4b400;
   font-weight:700;
   cursor:pointer;
 }
 
-/* form edit */
-.edit-body{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-}
-.edit-body .full{grid-column:1/-1}
-.edit-body .row{display:flex;gap:6px}
-
-/* mobile */
+/* ===== MOBILE ===== */
 @media(max-width:768px){
-  .edit-body{grid-template-columns:1fr}
+  .edit-body{
+    grid-template-columns:1fr;
+  }
 }
+
 
 </style>
 </head>
