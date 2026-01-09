@@ -349,6 +349,12 @@ tr.active{
   display:flex;
   gap:6px;
 }
+.edit-body label{
+  font-size:11px;
+  color:#9ecbff;
+  margin-bottom:2px;
+  display:block;
+}
 
 .edit-footer{
   display:flex;
@@ -512,35 +518,89 @@ tr.active{
       <button onclick="batalEdit()">✕</button>
     </div>
 
-    <div class="edit-body">
-      <input id="f_no" class="full" placeholder="Nomor Jembatan">
-      <input id="f_nama" class="full" placeholder="Nama Jembatan">
+    <div class="full">
+    <label>Nomor Jembatan</label>
+    <input id="f_no" placeholder="Nomor Jembatan">
+  </div>
 
-      <input id="f_konstruksi" placeholder="Jenis Konstruksi">
-      <input id="f_ruas" placeholder="Ruas Jalan">
+  <div class="full">
+    <label>Nama Jembatan</label>
+    <input id="f_nama" placeholder="Nama Jembatan">
+  </div>
 
-      <input id="f_kecamatan" placeholder="Kecamatan">
-      <input id="f_desa" placeholder="Desa / Kelurahan">
+  <div>
+    <label>Jenis Konstruksi</label>
+    <input id="f_konstruksi" placeholder="Jenis Konstruksi">
+  </div>
 
-      <div class="row full">
-        <input id="f_lat" placeholder="Latitude">
-        <input id="f_lng" placeholder="Longitude">
-        <button onclick="ambilLokasi()">📍</button>
-      </div>
+  <div>
+    <label>Ruas Jalan</label>
+    <input id="f_ruas" placeholder="Ruas Jalan">
+  </div>
 
-      <input id="f_panjang" placeholder="Panjang (m)">
-      <input id="f_lebar" placeholder="Lebar (m)">
-      <input id="f_bentang" placeholder="Jumlah Bentang">
+  <div>
+    <label>Kecamatan</label>
+    <input id="f_kecamatan" placeholder="Kecamatan">
+  </div>
 
-      <input id="f_atas" placeholder="Bangunan Atas">
-      <input id="f_bawah" placeholder="Bangunan Bawah">
-      <input id="f_pondasi" placeholder="Tipe Pondasi">
-      <input id="f_lantai" placeholder="Tipe Lantai">
-      <input id="f_kondisi" class="full" placeholder="Kondisi">
+  <div>
+    <label>Desa / Kelurahan</label>
+    <input id="f_desa" placeholder="Desa / Kelurahan">
+  </div>
 
-      <label class="full">Foto Jembatan</label>
-      <input type="file" id="f_foto" class="full" accept="image/*">
+  <div class="full">
+    <label>Koordinat</label>
+    <div class="row">
+      <input id="f_lat" placeholder="Latitude">
+      <input id="f_lng" placeholder="Longitude">
+      <button type="button" onclick="ambilLokasi()">📍</button>
     </div>
+  </div>
+
+  <div>
+    <label>Panjang (m)</label>
+    <input id="f_panjang" placeholder="Panjang (m)">
+  </div>
+
+  <div>
+    <label>Lebar (m)</label>
+    <input id="f_lebar" placeholder="Lebar (m)">
+  </div>
+
+  <div>
+    <label>Jumlah Bentang</label>
+    <input id="f_bentang" placeholder="Jumlah Bentang">
+  </div>
+
+  <div>
+    <label>Bangunan Atas</label>
+    <input id="f_atas" placeholder="Bangunan Atas">
+  </div>
+
+  <div>
+    <label>Bangunan Bawah</label>
+    <input id="f_bawah" placeholder="Bangunan Bawah">
+  </div>
+
+  <div>
+    <label>Tipe Pondasi</label>
+    <input id="f_pondasi" placeholder="Tipe Pondasi">
+  </div>
+
+  <div>
+    <label>Tipe Lantai</label>
+    <input id="f_lantai" placeholder="Tipe Lantai">
+  </div>
+
+  <div class="full">
+    <label>Kondisi</label>
+    <input id="f_kondisi" placeholder="Kondisi">
+  </div>
+
+  <div class="full">
+    <label>Foto Jembatan</label>
+    <input type="file" id="f_foto" accept="image/*">
+  </div>
 
     <div class="edit-footer">
       <button onclick="simpanData()">💾 Simpan</button>
