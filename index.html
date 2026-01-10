@@ -680,9 +680,14 @@ const API_URL = "https://script.google.com/macros/s/AKfycbyyAaZcRtIsm7Zh0dVBBqdM
 // ================= KONVERSI KOORDINAT =================
 // Indonesia (,) -> sistem (.) untuk Leaflet & simpan
 function indoToSys(v){
-  if(!v) return "";
-  return String(v).replace(",", ".");
+  return Number(String(v).replace(',', '.'));
 }
+
+const lat = indoToSys(d.lat);
+const lng = indoToSys(d.lng);
+
+L.marker([lat, lng]);
+
 
 // sistem (.) -> Indonesia (,) untuk tampilan
 function sysToIndo(v){
@@ -931,10 +936,8 @@ function bukaEdit(){
   f_ruas.value = d.ruas_jalan || "";
   f_kecamatan.value = d.kecamatan || "";
   f_desa.value = d.desa_kelurahan || "";
-
-  const lat = sysToIndo(d.lat);
-  const lng = sysToIndo(d.lng);
-
+  f_lat.value = d.lat;
+  f_lng.value = d.lng;
   f_panjang.value = d.panjang || "";
   f_lebar.value = d.lebar || "";
   f_bentang.value = d.jumlah_bentang || "";
