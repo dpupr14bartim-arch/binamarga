@@ -719,6 +719,20 @@ let currentRowIndex = null;
 let currentData = null;
 
 const foto = document.getElementById("foto");
+foto.onerror = () => {
+  foto.src = "data:image/svg+xml;utf8," +
+    encodeURIComponent(`
+      <svg xmlns='http://www.w3.org/2000/svg' width='600' height='360'>
+        <rect width='100%' height='100%' fill='#000'/>
+        <text x='50%' y='50%' fill='#f4b400'
+              font-size='18' text-anchor='middle'
+              dominant-baseline='middle'>
+          Tidak ada foto
+        </text>
+      </svg>
+    `);
+};
+
 const no = document.getElementById("no");
 const nama = document.getElementById("nama");
 const kec = document.getElementById("kec");
@@ -849,23 +863,29 @@ function showInfo(d){
   activeRowIndex = d.rowIndex;
   currentData = d;
 
- // ===== FOTO JEMBATAN (FIX GOOGLE DRIVE) =====
-foto.onerror = () => {
-  foto.src = "https://via.placeholder.com/300x180";
-};
-
-foto.src = d.foto && d.foto.startsWith("https://drive.google.com/uc")
-  ? d.foto
-  : "https://via.placeholder.com/300x180";
-
-
+  if (d.foto && d.foto.includes("drive.google.com")) {
+    foto.src = d.foto;
+  } else {
+    foto.src =
+      "data:image/svg+xml;utf8," +
+      encodeURIComponent(`
+        <svg xmlns='http://www.w3.org/2000/svg' width='600' height='360'>
+          <rect width='100%' height='100%' fill='#000'/>
+          <text x='50%' y='50%' fill='#f4b400'
+                font-size='18' text-anchor='middle'
+                dominant-baseline='middle'>
+            Tidak ada foto
+          </text>
+        </svg>
+      `);
+  }
 
   no.innerText = d.no_jembatan || "-";
   nama.innerText = d.nama_jembatan || "-";
-  konstruksi.innerText = d.jenis_konstruksi || "-";
   kec.innerText = d.kecamatan || "-";
   desa.innerText = d.desa_kelurahan || "-";
   ruas.innerText = d.ruas_jalan || "-";
+  konstruksi.innerText = d.jenis_konstruksi || "-";
 
   ukuran.innerText = `${d.panjang || "-"} m × ${d.lebar || "-"} m`;
   bentang.innerText = d.jumlah_bentang || "-";
@@ -882,6 +902,7 @@ foto.src = d.foto && d.foto.startsWith("https://drive.google.com/uc")
 
   panel.style.display = "block";
 }
+
 
 function tutupPanel(e){
   if(e){ e.preventDefault(); e.stopPropagation(); }
