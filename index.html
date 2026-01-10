@@ -847,7 +847,16 @@ function showInfo(d){
   activeRowIndex = d.rowIndex;
   currentData = d;
 
-  foto.src = d.foto || "https://via.placeholder.com/300x180";
+ // ===== FOTO JEMBATAN (FIX GOOGLE DRIVE) =====
+foto.onerror = () => {
+  foto.src = "https://via.placeholder.com/300x180";
+};
+
+foto.src = d.foto && d.foto.startsWith("https://drive.google.com/uc")
+  ? d.foto
+  : "https://via.placeholder.com/300x180";
+
+
 
   no.innerText = d.no_jembatan || "-";
   nama.innerText = d.nama_jembatan || "-";
