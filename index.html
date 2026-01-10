@@ -863,39 +863,52 @@ function showInfo(d){
   activeRowIndex = d.rowIndex;
   currentData = d;
 
+  // ===== FOTO (AMAN & TIDAK LOOPING) =====
+  foto.onerror = null; // reset handler lama
+
   if (d.foto && d.foto.trim() !== "") {
     foto.src = d.foto;
   } else {
+    foto.src = "";
+  }
+
+  // fallback HANYA jika gagal load
+  foto.onerror = () => {
+    foto.onerror = null;
     foto.src =
       "data:image/svg+xml;utf8," +
       encodeURIComponent(`
         <svg xmlns='http://www.w3.org/2000/svg' width='600' height='360'>
           <rect width='100%' height='100%' fill='#000'/>
           <text x='50%' y='50%' fill='#f4b400'
-                font-size='18' text-anchor='middle'
+                font-size='18'
+                text-anchor='middle'
                 dominant-baseline='middle'>
             Tidak ada foto
           </text>
         </svg>
       `);
-  }
-console.log("FOTO DARI API =", d.foto);
+  };
 
-  no.innerText = d.no_jembatan || "-";
+  console.log("FOTO DARI API =", d.foto);
+
+  // ===== DATA TEKS =====
+  no.innerText   = d.no_jembatan || "-";
   nama.innerText = d.nama_jembatan || "-";
-  kec.innerText = d.kecamatan || "-";
+  kec.innerText  = d.kecamatan || "-";
   desa.innerText = d.desa_kelurahan || "-";
   ruas.innerText = d.ruas_jalan || "-";
   konstruksi.innerText = d.jenis_konstruksi || "-";
 
   ukuran.innerText = `${d.panjang || "-"} m × ${d.lebar || "-"} m`;
   bentang.innerText = d.jumlah_bentang || "-";
-  atas.innerText = d.tipe_bangunan_atas || "-";
-  bawah.innerText = d.tipe_bangunan_bawah || "-";
+  atas.innerText    = d.tipe_bangunan_atas || "-";
+  bawah.innerText  = d.tipe_bangunan_bawah || "-";
   pondasi.innerText = d.tipe_pondasi || "-";
-  lantai.innerText = d.tipe_lantai || "-";
+  lantai.innerText  = d.tipe_lantai || "-";
   kondisi.innerText = d.kondisi || "-";
 
+  // ===== KOORDINAT =====
   const lat = sysToIndo(d.lat);
   const lng = sysToIndo(d.lng);
   koord.innerText = lat + ", " + lng;
