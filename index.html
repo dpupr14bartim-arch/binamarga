@@ -667,6 +667,18 @@ tr.active{
 <script>
 /* ================= KONFIG ================= */
 const API_URL = "https://script.google.com/macros/s/AKfycbyyAaZcRtIsm7Zh0dVBBqdM-sMInBcHo_5_RiqbGrTKyw_CUyFTemHHJJ0iK6qMm9slgQ/exec";
+// ================= KONVERSI KOORDINAT =================
+// Indonesia (,) -> sistem (.) untuk Leaflet & simpan
+function indoToSys(v){
+  if(!v) return "";
+  return String(v).replace(",", ".");
+}
+
+// sistem (.) -> Indonesia (,) untuk tampilan
+function sysToIndo(v){
+  if(v === null || v === undefined || v === "") return "";
+  return String(v).replace(".", ",");
+}
 
 /* ================= MAP ================= */
 const map = L.map("map").setView([-2.13,115.10],9);
@@ -829,8 +841,8 @@ function showInfo(d){
   activeRowIndex = d.rowIndex;   // ← WAJIB, BARIS PERTAMA
   currentData = d; // ⬅️ INI KUNCI EDIT TIDAK KOSONG
 
-  const lat = Number(d.lat).toFixed(6);
-  const lng = Number(d.lng).toFixed(6);
+  const lat = sysToIndo(d.lat);
+  const lng = sysToIndo(d.lng);
 
   foto.src = d.foto || "https://via.placeholder.com/300x180";
   no.innerText = d.no_jembatan || "-";
@@ -910,8 +922,8 @@ function bukaEdit(){
   f_kecamatan.value = d.kecamatan || "";
   f_desa.value = d.desa_kelurahan || "";
 
-  f_lat.value = d.lat || "";
-  f_lng.value = d.lng || "";
+  const lat = sysToIndo(d.lat);
+  const lng = sysToIndo(d.lng);
 
   f_panjang.value = d.panjang || "";
   f_lebar.value = d.lebar || "";
@@ -959,8 +971,8 @@ async function simpanData(){
     ruas_jalan:f_ruas.value,
     kecamatan:f_kecamatan.value,
     desa_kelurahan:f_desa.value,
-    lat:f_lat.value,
-    lng:f_lng.value,
+    lat: indoToSys(f_lat.value),
+    lng: indoToSys(f_lng.value),
     panjang:f_panjang.value,
     lebar:f_lebar.value,
     jumlah_bentang:f_bentang.value,
