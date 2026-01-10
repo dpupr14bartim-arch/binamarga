@@ -114,21 +114,23 @@ select{
   line-height:1;
 }
 
-//* ===== FOTO JEMBATAN PANEL (FIX & RESPONSIVE) ===== */
+/* ===== FOTO JEMBATAN PANEL (FIT & RESPONSIVE) ===== */
 #panel img{
   width:100%;
-  height:180px;          /* kunci tinggi */
-  object-fit:cover;      /* isi rapi */
+  max-width:100%;
+  height:180px;          /* tinggi konsisten */
+  object-fit:cover;      /* isi penuh, crop rapi */
+  object-position:center;
   border-radius:12px;
   border:2px solid #f4b400;
-  margin-bottom:10px;
   background:#000;
+  display:block;
 }
 
 /* MOBILE */
 @media(max-width:768px){
   #panel img{
-    height:160px;
+    height:150px;
   }
 }
 
