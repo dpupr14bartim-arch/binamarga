@@ -863,7 +863,7 @@ function showInfo(d){
   activeRowIndex = d.rowIndex;
   currentData = d;
 
-  if (d.foto && d.foto.includes("drive.google.com")) {
+  if (d.foto && d.foto.trim() !== "") {
     foto.src = d.foto;
   } else {
     foto.src =
