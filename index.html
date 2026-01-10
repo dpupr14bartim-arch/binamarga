@@ -677,17 +677,13 @@ tr.active{
 <script>
 /* ================= KONFIG ================= */
 const API_URL = "https://script.google.com/macros/s/AKfycbyyAaZcRtIsm7Zh0dVBBqdM-sMInBcHo_5_RiqbGrTKyw_CUyFTemHHJJ0iK6qMm9slgQ/exec";
-// ================= KONVERSI KOORDINAT =================
+
+/* ================= KONVERSI KOORDINAT ================= */
 // Indonesia (,) -> sistem (.) untuk Leaflet & simpan
 function indoToSys(v){
+  if(v === null || v === undefined || v === "") return NaN;
   return Number(String(v).replace(',', '.'));
 }
-
-const lat = indoToSys(d.lat);
-const lng = indoToSys(d.lng);
-
-L.marker([lat, lng]);
-
 
 // sistem (.) -> Indonesia (,) untuk tampilan
 function sysToIndo(v){
@@ -696,7 +692,7 @@ function sysToIndo(v){
 }
 
 /* ================= MAP ================= */
-const map = L.map("map").setView([-2.13,115.10],9);
+const map = L.map("map").setView([-2.13, 115.10], 9);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 const layer = L.layerGroup().addTo(map);
 
@@ -712,13 +708,13 @@ const icon = L.divIcon({
   popupAnchor: [0,-36]
 });
 
-
 /* ================= DOM ================= */
 const filterKec = document.getElementById("filterKec");
 const panel = document.getElementById("panel");
+
 let activeRowIndex = null;
 let currentRowIndex = null;
-let currentData = null; // ⬅️ TAMBAH INI
+let currentData = null;
 
 const foto = document.getElementById("foto");
 const no = document.getElementById("no");
@@ -735,7 +731,7 @@ const atas = document.getElementById("atas");
 const bawah = document.getElementById("bawah");
 const pondasi = document.getElementById("pondasi");
 const lantai = document.getElementById("lantai");
-  
+
 /* ===== DOM FORM EDIT ===== */
 const f_no = document.getElementById("f_no");
 const f_nama = document.getElementById("f_nama");
@@ -743,26 +739,21 @@ const f_konstruksi = document.getElementById("f_konstruksi");
 const f_ruas = document.getElementById("f_ruas");
 const f_kecamatan = document.getElementById("f_kecamatan");
 const f_desa = document.getElementById("f_desa");
-
 const f_lat = document.getElementById("f_lat");
 const f_lng = document.getElementById("f_lng");
 const f_panjang = document.getElementById("f_panjang");
 const f_lebar = document.getElementById("f_lebar");
 const f_bentang = document.getElementById("f_bentang");
-
 const f_atas = document.getElementById("f_atas");
 const f_bawah = document.getElementById("f_bawah");
 const f_pondasi = document.getElementById("f_pondasi");
 const f_lantai = document.getElementById("f_lantai");
 const f_kondisi = document.getElementById("f_kondisi");
-
 const f_foto = document.getElementById("f_foto");
 
-
-/* ================= LOAD PER KECAMATAN ================= */
+/* ================= LOAD DATA ================= */
 filterKec.onchange = loadData;
 
-// simpan referensi marker & tabel
 const markerMap = {};
 const tableMap  = {};
 const tbody = document.querySelector("#tabelJembatan tbody");
@@ -774,7 +765,7 @@ async function loadData(){
   panel.style.display = "none";
   tbody.innerHTML = "";
 
-  if(!k) return; // map & tabel kosong
+  if(!k) return;
 
   const res = await fetch(API_URL + "?kecamatan=" + encodeURIComponent(k));
   const json = await res.json();
@@ -785,30 +776,30 @@ async function loadData(){
   }
 
   json.data.forEach((d,i)=>{
-    /* ================= MARKER ================= */
-   if(!isNaN(d.lat) && !isNaN(d.lng)){
-  const m = L.marker([d.lat, d.lng], { icon })
-    .addTo(layer)
-    .bindTooltip(
-      d.nama_jembatan || "Jembatan",
-      {
-        permanent: true,     // selalu tampil
-        direction: "top",    // di atas marker
-        offset: [0, -18],    // naik sedikit
-        className: "label-jembatan"
-      }
-    );
 
-  markerMap[d.rowIndex] = m;
+    /* ===== MARKER (PASTI AMAN) ===== */
+    const lat = indoToSys(d.lat);
+    const lng = indoToSys(d.lng);
 
-  m.on("click", ()=>{
-    showInfo(d);
-    highlightRow(d.rowIndex);
-  });
-}
+    if(!isNaN(lat) && !isNaN(lng)){
+      const m = L.marker([lat, lng], { icon })
+        .addTo(layer)
+        .bindTooltip(d.nama_jembatan || "Jembatan", {
+          permanent:true,
+          direction:"top",
+          offset:[0,-18],
+          className:"label-jembatan"
+        });
 
+      markerMap[d.rowIndex] = m;
 
-    /* ================= TABEL ================= */
+      m.on("click", ()=>{
+        showInfo(d);
+        highlightRow(d.rowIndex);
+      });
+    }
+
+    /* ===== TABEL ===== */
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${i+1}</td>
@@ -843,7 +834,7 @@ async function loadData(){
   });
 }
 
-  function highlightRow(rowIndex){
+function highlightRow(rowIndex){
   Object.values(tableMap).forEach(tr=>tr.classList.remove("active"));
   if(tableMap[rowIndex]){
     tableMap[rowIndex].classList.add("active");
@@ -853,20 +844,17 @@ async function loadData(){
 
 /* ================= PANEL INFO ================= */
 function showInfo(d){
-  activeRowIndex = d.rowIndex;   // ← WAJIB, BARIS PERTAMA
-  currentData = d; // ⬅️ INI KUNCI EDIT TIDAK KOSONG
-
-  const lat = sysToIndo(d.lat);
-  const lng = sysToIndo(d.lng);
+  activeRowIndex = d.rowIndex;
+  currentData = d;
 
   foto.src = d.foto || "https://via.placeholder.com/300x180";
+
   no.innerText = d.no_jembatan || "-";
   nama.innerText = d.nama_jembatan || "-";
   konstruksi.innerText = d.jenis_konstruksi || "-";
   kec.innerText = d.kecamatan || "-";
   desa.innerText = d.desa_kelurahan || "-";
   ruas.innerText = d.ruas_jalan || "-";
-  
 
   ukuran.innerText = `${d.panjang || "-"} m × ${d.lebar || "-"} m`;
   bentang.innerText = d.jumlah_bentang || "-";
@@ -874,32 +862,22 @@ function showInfo(d){
   bawah.innerText = d.tipe_bangunan_bawah || "-";
   pondasi.innerText = d.tipe_pondasi || "-";
   lantai.innerText = d.tipe_lantai || "-";
-
   kondisi.innerText = d.kondisi || "-";
 
-  // === KOORDINAT KLIK KE GOOGLE MAPS ===
+  const lat = sysToIndo(d.lat);
+  const lng = sysToIndo(d.lng);
   koord.innerText = lat + ", " + lng;
   koord.href = "https://www.google.com/maps?q=" + lat + "," + lng;
-  koord.title = "Buka di Google Maps"; // ⬅️ INI LETAKNYA
 
   panel.style.display = "block";
 }
 
 function tutupPanel(e){
-  if(e){
-    e.preventDefault();
-    e.stopPropagation(); // ⬅️ INI KUNCI
-  }
+  if(e){ e.preventDefault(); e.stopPropagation(); }
   panel.style.display = "none";
 }
 
-const tf = document.getElementById("tahunFooter");
-if (tf) tf.innerText = new Date().getFullYear();
-
-
-
-
-/* ==== TOMBOL EDIT DARI PANEL INFO ==== */
+/* ================= EDIT ================= */
 function mintaEdit(){
   const pin = prompt("Masukkan PIN Edit:");
   if(!pin) return;
@@ -912,36 +890,28 @@ async function verifikasiPin(pin){
     body:JSON.stringify({action:"pin", pin})
   });
   const j = await r.json();
-  if(j.status!=="ok"){
-    alert("PIN salah");
-    return;
-  }
+  if(j.status!=="ok"){ alert("PIN salah"); return; }
   bukaEdit();
 }
 
 function bukaEdit(){
-  // index baris
   currentRowIndex = activeRowIndex;
-
-  // mode edit
   panel.classList.add("edit-mode");
 
   const d = currentData;
   if(!d) return;
 
-  // isi form LANGSUNG dari data
   f_no.value = d.no_jembatan || "";
   f_nama.value = d.nama_jembatan || "";
   f_konstruksi.value = d.jenis_konstruksi || "";
   f_ruas.value = d.ruas_jalan || "";
   f_kecamatan.value = d.kecamatan || "";
   f_desa.value = d.desa_kelurahan || "";
-  f_lat.value = d.lat;
-  f_lng.value = d.lng;
+  f_lat.value = sysToIndo(d.lat);
+  f_lng.value = sysToIndo(d.lng);
   f_panjang.value = d.panjang || "";
   f_lebar.value = d.lebar || "";
   f_bentang.value = d.jumlah_bentang || "";
-
   f_atas.value = d.tipe_bangunan_atas || "";
   f_bawah.value = d.tipe_bangunan_bawah || "";
   f_pondasi.value = d.tipe_pondasi || "";
@@ -949,64 +919,59 @@ function bukaEdit(){
   f_kondisi.value = d.kondisi || "";
 }
 
-
 function batalEdit(){
   panel.classList.remove("edit-mode");
 }
 
-
 function ambilLokasi(){
   navigator.geolocation.getCurrentPosition(p=>{
-    f_lat.value = p.coords.latitude.toFixed(6);
-    f_lng.value = p.coords.longitude.toFixed(6);
+    f_lat.value = sysToIndo(p.coords.latitude.toFixed(6));
+    f_lng.value = sysToIndo(p.coords.longitude.toFixed(6));
   });
 }
 
 async function simpanData(){
   let fotoBase64="";
-  const f = f_foto.files[0];
-  if(f){
+  if(f_foto.files[0]){
     fotoBase64 = await new Promise(r=>{
       const fr=new FileReader();
       fr.onload=()=>r(fr.result);
-      fr.readAsDataURL(f);
+      fr.readAsDataURL(f_foto.files[0]);
     });
   }
 
- await fetch(API_URL,{
-  method:"POST",
-  body:JSON.stringify({
-    action:"simpan",
-    rowIndex:currentRowIndex,
-    no_jembatan:f_no.value,
-    nama_jembatan:f_nama.value,
-    jenis_konstruksi:f_konstruksi.value,
-    ruas_jalan:f_ruas.value,
-    kecamatan:f_kecamatan.value,
-    desa_kelurahan:f_desa.value,
-    lat: indoToSys(f_lat.value),
-    lng: indoToSys(f_lng.value),
-    panjang:f_panjang.value,
-    lebar:f_lebar.value,
-    jumlah_bentang:f_bentang.value,
-    tipe_bangunan_atas:f_atas.value,
-    tipe_bangunan_bawah:f_bawah.value,
-    tipe_pondasi:f_pondasi.value,
-    tipe_lantai:f_lantai.value,
-    kondisi:f_kondisi.value,
-    foto_lama: foto.src || "",
-    fotoBase64
-  })
-});
-
-
+  await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"simpan",
+      rowIndex:currentRowIndex,
+      no_jembatan:f_no.value,
+      nama_jembatan:f_nama.value,
+      jenis_konstruksiuksi:f_konstruksi.value,
+      ruas_jalan:f_ruas.value,
+      kecamatan:f_kecamatan.value,
+      desa_kelurahan:f_desa.value,
+      lat: indoToSys(f_lat.value),
+      lng: indoToSys(f_lng.value),
+      panjang:f_panjang.value,
+      lebar:f_lebar.value,
+      jumlah_bentang:f_bentang.value,
+      tipe_bangunan_atas:f_atas.value,
+      tipe_bangunan_bawah:f_bawah.value,
+      tipe_pondasi:f_pondasi.value,
+      tipe_lantai:f_lantai.value,
+      kondisi:f_kondisi.value,
+      foto_lama: foto.src || "",
+      fotoBase64
+    })
+  });
 
   alert("✔ Data tersimpan");
   batalEdit();
   loadData();
 }
-
 </script>
+
 <footer class="footer">
   <div class="footer-inner">
     
