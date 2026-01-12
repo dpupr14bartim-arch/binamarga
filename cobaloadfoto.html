@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Test Load Foto Google Drive</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  background:#020216;
+  color:#e0f7ff;
+  font-family:Segoe UI, Arial, sans-serif;
+}
+
+.container{
+  max-width:900px;
+  margin:40px auto;
+  padding:20px;
+}
+
+h1{
+  color:#f4b400;
+  font-size:22px;
+  margin-bottom:10px;
+}
+
+.block{
+  margin-bottom:30px;
+  padding:16px;
+  border-radius:14px;
+  background:#071a33;
+  box-shadow:0 0 18px rgba(0,0,0,.6);
+}
+
+.label{
+  font-size:13px;
+  color:#9ecbff;
+  margin-bottom:8px;
+  word-break:break-all;
+}
+
+img{
+  width:100%;
+  max-height:360px;
+  object-fit:contain;
+  background:#000;
+  border:2px solid #f4b400;
+  border-radius:12px;
+}
+
+.status{
+  margin-top:6px;
+  font-size:12px;
+  color:#ffe08a;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>Test Load Foto Google Drive</h1>
+<p>File ini khusus ngetes URL foto Google Drive di tag &lt;img&gt;</p>
+
+<!-- ===================== TEST 1 ===================== -->
+<div class="block">
+  <div class="label">
+    TEST 1 – uc?export=view  
+    <br>
+    https://drive.google.com/uc?export=view&id=1u3174KCha4XB5cymB75CtS_cWDbMp5zW
+  </div>
+
+  <img
+    src="https://drive.google.com/uc?export=view&id=1u3174KCha4XB5cymB75CtS_cWDbMp5zW"
+    onload="this.nextElementSibling.innerText='✔ BERHASIL LOAD'"
+    onerror="this.nextElementSibling.innerText='❌ GAGAL LOAD'"
+  >
+
+  <div class="status">Menunggu...</div>
+</div>
+
+<!-- ===================== TEST 2 ===================== -->
+<div class="block">
+  <div class="label">
+    TEST 2 – thumbnail (REKOMENDASI)  
+    <br>
+    https://drive.google.com/thumbnail?id=1u3174KCha4XB5cymB75CtS_cWDbMp5zW&sz=w1200
+  </div>
+
+  <img
+    src="https://drive.google.com/thumbnail?id=1u3174KCha4XB5cymB75CtS_cWDbMp5zW&sz=w1200"
+    onload="this.nextElementSibling.innerText='✔ BERHASIL LOAD'"
+    onerror="this.nextElementSibling.innerText='❌ GAGAL LOAD'"
+  >
+
+  <div class="status">Menunggu...</div>
+</div>
+
+</div>
+</body>
+</html>
