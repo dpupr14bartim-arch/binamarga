@@ -722,20 +722,6 @@ let currentRowIndex = null;
 let currentData = null;
 
 const foto = document.getElementById("foto");
-foto.onerror = () => {
-  foto.src = "data:image/svg+xml;utf8," +
-    encodeURIComponent(`
-      <svg xmlns='http://www.w3.org/2000/svg' width='600' height='360'>
-        <rect width='100%' height='100%' fill='#000'/>
-        <text x='50%' y='50%' fill='#f4b400'
-              font-size='18' text-anchor='middle'
-              dominant-baseline='middle'>
-          Tidak ada foto
-        </text>
-      </svg>
-    `);
-};
-
 const no = document.getElementById("no");
 const nama = document.getElementById("nama");
 const kec = document.getElementById("kec");
@@ -866,36 +852,28 @@ function showInfo(d){
   activeRowIndex = d.rowIndex;
   currentData = d;
 
-  // ===== FOTO (AMAN & TIDAK LOOPING) =====
-  foto.onerror = null; // reset handler lama
-
+  // ===== FOTO (STABIL, TIDAK PAKAI onerror) =====
   if (d.foto && d.foto.trim() !== "") {
     foto.src = d.foto;
   } else {
-    foto.src = "";
-  }
-
-  // fallback HANYA jika gagal load
-  foto.onerror = () => {
-    foto.onerror = null;
     foto.src =
       "data:image/svg+xml;utf8," +
       encodeURIComponent(`
-        <svg xmlns='http://www.w3.org/2000/svg' width='600' height='360'>
-          <rect width='100%' height='100%' fill='#000'/>
-          <text x='50%' y='50%' fill='#f4b400'
-                font-size='18'
-                text-anchor='middle'
-                dominant-baseline='middle'>
+        <svg xmlns="http://www.w3.org/2000/svg" width="600" height="360">
+          <rect width="100%" height="100%" fill="#000"/>
+          <text x="50%" y="50%" fill="#f4b400"
+                font-size="18"
+                text-anchor="middle"
+                dominant-baseline="middle">
             Tidak ada foto
           </text>
         </svg>
       `);
-  };
+  }
 
   console.log("FOTO DARI API =", d.foto);
 
-  // ===== DATA TEKS =====
+  // ===== DATA =====
   no.innerText   = d.no_jembatan || "-";
   nama.innerText = d.nama_jembatan || "-";
   kec.innerText  = d.kecamatan || "-";
@@ -911,7 +889,6 @@ function showInfo(d){
   lantai.innerText  = d.tipe_lantai || "-";
   kondisi.innerText = d.kondisi || "-";
 
-  // ===== KOORDINAT =====
   const lat = sysToIndo(d.lat);
   const lng = sysToIndo(d.lng);
   koord.innerText = lat + ", " + lng;
@@ -919,6 +896,7 @@ function showInfo(d){
 
   panel.style.display = "block";
 }
+
 
 
 function tutupPanel(e){
